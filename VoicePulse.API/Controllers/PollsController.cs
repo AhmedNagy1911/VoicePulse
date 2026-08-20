@@ -31,4 +31,12 @@ public class PollsController(IPollService pollService) : ControllerBase
 
         return CreatedAtAction(nameof(GetById), new { id = newPoll.Id }, newPoll);
     }
+
+    [HttpPut("{id}")]
+    public IActionResult Update(int id, Poll poll)
+    {
+        var isUpdated = _pollservice.Update(id,poll);
+
+        return isUpdated ? NoContent() : NotFound();
+    }
 }
