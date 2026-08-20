@@ -7,4 +7,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\VoicePulse.Application\VoicePulse.Application.csproj" />
+    <ProjectReference Include="..\VoicePulse.Domain\VoicePulse.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
