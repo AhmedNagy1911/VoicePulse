@@ -5,7 +5,7 @@ namespace VoicePulse.Application.Services;
 
 public class PollService : IPollService
 {
-    private readonly List<Poll> _poll =
+    private static readonly List<Poll> _poll =
     [
            new Poll{
                 Id = 1,
@@ -40,6 +40,16 @@ public class PollService : IPollService
 
         existingPoll.Title = poll.Title;
         existingPoll.Description = poll.Description;
+        return true;
+    }
+    public bool Delete(int id)
+    {
+        var Poll = GetById(id);
+        if (Poll is null)
+            return false;
+
+        _poll.Remove(Poll);
+       
         return true;
     }
 }
