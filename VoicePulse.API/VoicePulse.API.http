@@ -1,0 +1,6 @@
+﻿@VoicePulse.API_HostAddress = https://localhost:7138
+
+GET {{VoicePulse.API_HostAddress}}/api/polls
+Authorization: bearer {{$bearerToken}}
+
+###
