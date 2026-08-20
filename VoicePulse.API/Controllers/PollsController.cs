@@ -23,4 +23,12 @@ public class PollsController(IPollService pollService) : ControllerBase
 
         return poll is not null ? Ok(poll) : NotFound();
     }
+
+    [HttpPost("")]
+    public IActionResult Add(Poll poll)
+    {
+        var newPoll = _pollservice.Add(poll);
+
+        return CreatedAtAction(nameof(GetById), new { id = newPoll.Id }, newPoll);
+    }
 }

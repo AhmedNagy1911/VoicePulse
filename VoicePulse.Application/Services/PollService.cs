@@ -12,7 +12,9 @@ public class PollService : IPollService
                 Title = "Poll 1",
                 Description = "Description for Poll 1"
             }
-   ]; 
+   ];
+
+
     public IEnumerable<Poll> GetAll()
     {
         return _poll; 
@@ -21,5 +23,12 @@ public class PollService : IPollService
     public Poll? GetById(int id)
     {
         return _poll.SingleOrDefault(p => p.Id == id);
+    }
+    public Poll Add(Poll poll)
+    {
+        poll.Id = _poll.Count + 1; // Simple ID generation
+        _poll.Add(poll);
+
+        return poll;
     }
 }
