@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="VoicePulse.API/VoicePulse.API.csproj" />
+  <Project Path="VoicePulse.Application/VoicePulse.Application.csproj" />
+  <Project Path="VoicePulse.Domain/VoicePulse.Domain.csproj" />
+  <Project Path="VoicePulse.Infrastructure/VoicePulse.Infrastructure.csproj" />
+</Solution>
