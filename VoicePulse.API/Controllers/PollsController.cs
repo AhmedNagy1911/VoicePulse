@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using VoicePulse.Domain.Entities;
 
 namespace VoicePulse.API.Controllers;
 
@@ -7,4 +7,11 @@ namespace VoicePulse.API.Controllers;
 [ApiController]
 public class PollsController : ControllerBase
 {
+    private readonly List<Poll> _poll = [];
+
+    [HttpGet]
+    public IActionResult GetAll()
+    {
+        return Ok(_poll);
+    }
 }
