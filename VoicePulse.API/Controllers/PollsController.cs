@@ -7,7 +7,7 @@ using VoicePulse.Domain.Entities;
 namespace VoicePulse.API.Controllers;
 
 [Route("api/[controller]")]
-//[ApiController]
+[ApiController]
 public class PollsController(IPollService pollService) : ControllerBase
 {
     private readonly IPollService _pollservice = pollService;
@@ -16,11 +16,11 @@ public class PollsController(IPollService pollService) : ControllerBase
     public IActionResult GetAll()
     {
         var polls = _pollservice.GetAll();
-
-        var response = polls.Adapt<IEnumerable<PollResponse>>();
          
+        var response = polls.Adapt<IEnumerable<PollResponse>>();
+
         return Ok(response);
-    } 
+    }
 
     [HttpGet("{id}")]
     public IActionResult GetById([FromRoute] int id)
