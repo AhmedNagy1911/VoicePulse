@@ -1,55 +1,47 @@
-﻿using VoicePulse.Application.Interfaces;
+﻿using Microsoft.EntityFrameworkCore;
+using VoicePulse.Application.Common.Interfaces;
+using VoicePulse.Application.Interfaces;
 using VoicePulse.Domain.Entities;
 
 namespace VoicePulse.Application.Services;
 
-public class PollService : IPollService
+public class PollService(IApplicationDbContext context) : IPollService
 {
-    private static readonly List<Poll> _poll =
-    [
-           new Poll{
-                Id = 1,
-                Title = "Poll 1",
-                Summary = "Description for Poll 1"
-            }
-    ];
+    private readonly IApplicationDbContext _context = context;
+
+    public async Task<IEnumerable<Poll>> GetAllAsync() =>
+        await _context.Polls.AsNoTracking().ToListAsync();
 
 
-    public IEnumerable<Poll> GetAll()
-    {
-        return _poll; 
-    }
+    public async Task<Poll?> GetByIdAsync(int id) =>
+        await _context.Polls.FindAsync(id);
 
-    public Poll? GetById(int id)
+    public async Task<Poll> AddAsync(Poll poll)
     {
-        return _poll.SingleOrDefault(p => p.Id == id);
-    }
-    public Poll Add(Poll poll)
-    {
-        poll.Id = _poll.Count + 1; // Simple ID generation
-        _poll.Add(poll);
+        await _context.Polls.AddAsync(poll);
+        await _context.SaveChangesAsync();
 
         return poll;
     }
 
-    public bool Update(int id , Poll poll)
-    {
-        var existingPoll = GetById(id);
-        if (existingPoll is null)
-            return false;
+    //public bool Update(int id , Poll poll)
+    //{
+    //    var existingPoll = GetById(id);
+    //    if (existingPoll is null)
+    //        return false;
 
-        existingPoll.Title = poll.Title;
-        existingPoll.Summary = poll.Summary;
-        return true;
-    }
-    public bool Delete(int id)
-    {
-        var Poll = GetById(id);
-        if (Poll is null)
-            return false;
+    //    existingPoll.Title = poll.Title;
+    //    existingPoll.Summary = poll.Summary;
+    //    return true;
+    //}
+    //public bool Delete(int id)
+    //{
+    //    var Poll = GetById(id);
+    //    if (Poll is null)
+    //        return false;
 
-        _poll.Remove(Poll);
-       
-        return true;
-    }
+    //    _poll.Remove(Poll);
+
+    //    return true;
+    //}
 }

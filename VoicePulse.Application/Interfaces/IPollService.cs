@@ -4,9 +4,9 @@ namespace VoicePulse.Application.Interfaces;
 
 public interface IPollService
 {
-    IEnumerable<Poll> GetAll();
-    Poll? GetById(int id);
-    Poll Add(Poll poll);
-    bool Update(int id , Poll poll);
-    bool Delete(int id);
+    Task<IEnumerable<Poll>> GetAllAsync();
+    Task<Poll?> GetByIdAsync(int id);
+    Task<Poll> AddAsync(Poll poll);
+    //Task<bool> Update(int id, Poll poll);
+    //Task<bool> Delete(int id);
 }

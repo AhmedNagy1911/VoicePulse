@@ -12,6 +12,6 @@ public class PollRequestValidator : AbstractValidator<PollRequest>
 
         RuleFor(p => p.Summary)
             .NotEmpty()
-            .Length(3,1000);
+            .Length(3,1500);
     } 
 }

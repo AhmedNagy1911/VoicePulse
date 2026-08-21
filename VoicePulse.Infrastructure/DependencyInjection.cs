@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using VoicePulse.Application.Common.Interfaces;
 using VoicePulse.Infrastructure.Persistence;
 
 namespace VoicePulse.Infrastructure;
@@ -18,7 +19,7 @@ public static class DependencyInjection
             options.UseSqlServer(connectionString));
 
 
-
+        services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
 
 
         return services;
