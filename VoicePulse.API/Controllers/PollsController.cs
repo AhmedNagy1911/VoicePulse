@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Mapster;
+using Microsoft.AspNetCore.Mvc;
+using VoicePulse.Application.Contracts.Polls;
 using VoicePulse.Application.Interfaces;
 using VoicePulse.Domain.Entities;
 
@@ -13,29 +15,35 @@ public class PollsController(IPollService pollService) : ControllerBase
     [HttpGet("")]
     public IActionResult GetAll()
     {
-        return Ok(_pollservice.GetAll());
-    }
+        var polls = _pollservice.GetAll();
+
+        var response = polls.Adapt<IEnumerable<PollResponse>>();
+         
+        return Ok(response);
+    } 
 
     [HttpGet("{id}")]
     public IActionResult GetById([FromRoute] int id)
     {
-        var poll = _pollservice.GetById(id);    
+        var poll = _pollservice.GetById(id);
 
-        return poll is not null ? Ok(poll) : NotFound();
+        var response = poll.Adapt<PollResponse>();
+
+        return poll is not null ? Ok(response) : NotFound();
     }
 
     [HttpPost("")]
-    public IActionResult Add([FromBody] Poll poll)
+    public IActionResult Add([FromBody] PollRequest poll)
     {
-        var newPoll = _pollservice.Add(poll);
+        var newPoll = _pollservice.Add(poll.Adapt<Poll>());
 
         return CreatedAtAction(nameof(GetById), new { id = newPoll.Id }, newPoll);
     }
 
     [HttpPut("{id}")]
-    public IActionResult Update([FromRoute] int id, [FromBody] Poll poll)
+    public IActionResult Update([FromRoute] int id, [FromBody] PollRequest poll)
     {
-        var isUpdated = _pollservice.Update(id,poll);
+        var isUpdated = _pollservice.Update(id , poll.Adapt<Poll>());
 
         return isUpdated ? NoContent() : NotFound();
     }
