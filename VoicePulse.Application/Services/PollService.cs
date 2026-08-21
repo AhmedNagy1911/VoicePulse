@@ -9,17 +9,18 @@ public class PollService(IApplicationDbContext context) : IPollService
 {
     private readonly IApplicationDbContext _context = context;
 
-    public async Task<IEnumerable<Poll>> GetAllAsync() =>
-        await _context.Polls.AsNoTracking().ToListAsync();
+    public async Task<IEnumerable<Poll>> GetAllAsync(CancellationToken cancellationToken = default) =>
+        await _context.Polls.AsNoTracking().ToListAsync(cancellationToken);
 
 
-    public async Task<Poll?> GetByIdAsync(int id) =>
-        await _context.Polls.FindAsync(id);
+    public async Task<Poll?> GetByIdAsync(int id, CancellationToken cancellationToken = default) =>
+        await _context.Polls.FindAsync(id, cancellationToken);
 
-    public async Task<Poll> AddAsync(Poll poll)
+    public async Task<Poll> AddAsync(Poll poll, CancellationToken cancellationToken = default)
     {
-        await _context.Polls.AddAsync(poll);
-        await _context.SaveChangesAsync();
+        await _context.Polls.AddAsync(poll, cancellationToken);
+
+        await _context.SaveChangesAsync(cancellationToken);
 
         return poll;
     }

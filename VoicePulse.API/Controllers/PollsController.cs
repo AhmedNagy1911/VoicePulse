@@ -13,9 +13,9 @@ public class PollsController(IPollService pollService) : ControllerBase
     private readonly IPollService _pollservice = pollService;
 
     [HttpGet("")]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll(CancellationToken cancellationToken = default)
     {
-        var polls = await _pollservice.GetAllAsync();
+        var polls = await _pollservice.GetAllAsync(cancellationToken);
          
         var response = polls.Adapt<IEnumerable<PollResponse>>();
 
@@ -23,9 +23,9 @@ public class PollsController(IPollService pollService) : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById([FromRoute] int id)
+    public async Task<IActionResult> GetById([FromRoute] int id, CancellationToken cancellationToken = default)
     {
-        var poll = await _pollservice.GetByIdAsync(id);
+        var poll = await _pollservice.GetByIdAsync(id, cancellationToken);
 
         var response = poll.Adapt<PollResponse>();
 
@@ -33,9 +33,9 @@ public class PollsController(IPollService pollService) : ControllerBase
     }
 
     [HttpPost("")]
-    public async Task<IActionResult> Add([FromBody] PollRequest poll)
+    public async Task<IActionResult> Add([FromBody] PollRequest poll , CancellationToken cancellationToken = default)
     {
-        var newPoll = await _pollservice.AddAsync(poll.Adapt<Poll>());
+        var newPoll = await _pollservice.AddAsync(poll.Adapt<Poll>(), cancellationToken);
 
         return CreatedAtAction(nameof(GetById), new { id = newPoll.Id }, newPoll);
     }
