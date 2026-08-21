@@ -1,5 +1,6 @@
 using Microsoft.OpenApi;
 using VoicePulse.Application;
+using VoicePulse.Infrastructure;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,8 +8,15 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
-builder.Services.AddApplication();
 
+// Add application and infrastructure Dependency injection
+builder.Services
+        .AddInfrastructure(builder.Configuration)
+        .AddApplication();
+
+// Add Swagger
+
+builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo

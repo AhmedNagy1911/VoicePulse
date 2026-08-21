@@ -10,7 +10,7 @@ public class PollService : IPollService
            new Poll{
                 Id = 1,
                 Title = "Poll 1",
-                Description = "Description for Poll 1"
+                Summary = "Description for Poll 1"
             }
     ];
 
@@ -39,7 +39,7 @@ public class PollService : IPollService
             return false;
 
         existingPoll.Title = poll.Title;
-        existingPoll.Description = poll.Description;
+        existingPoll.Summary = poll.Summary;
         return true;
     }
     public bool Delete(int id)
