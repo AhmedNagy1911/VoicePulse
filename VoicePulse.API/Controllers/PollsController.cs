@@ -40,18 +40,19 @@ public class PollsController(IPollService pollService) : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = newPoll.Id }, newPoll);
     }
 
-    //[HttpPut("{id}")]
-    //public IActionResult Update([FromRoute] int id, [FromBody] PollRequest poll)
-    //{
-    //    var isUpdated = _pollservice.Update(id , poll.Adapt<Poll>());
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update([FromRoute] int id, [FromBody] PollRequest poll, CancellationToken cancellationToken = default)
+    {
+        var isUpdated = await _pollservice.Update(id, poll.Adapt<Poll>(), cancellationToken);
 
-    //    return isUpdated ? NoContent() : NotFound();
-    //}
-    //[HttpDelete("{id}")]
-    //public IActionResult Delete ([FromRoute] int id)
-    //{
-    //    var isDelete = _pollservice.Delete(id);
+        return isUpdated ? NoContent() : NotFound();
+    }
 
-    //    return isDelete ? NoContent() : NotFound();
-    //}
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete([FromRoute] int id, CancellationToken cancellationToken = default)
+    {
+        var isDelete = await _pollservice.Delete(id, cancellationToken);
+
+        return isDelete ? NoContent() : NotFound();
+    }
 }

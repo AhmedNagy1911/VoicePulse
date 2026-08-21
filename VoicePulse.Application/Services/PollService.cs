@@ -25,24 +25,32 @@ public class PollService(IApplicationDbContext context) : IPollService
         return poll;
     }
 
-    //public bool Update(int id , Poll poll)
-    //{
-    //    var existingPoll = GetById(id);
-    //    if (existingPoll is null)
-    //        return false;
+    public async Task<bool> Update(int id, Poll poll, CancellationToken cancellationToken = default)
+    {
+        var currentPoll = await GetByIdAsync(id, cancellationToken);
+        if (currentPoll is null)
+            return false;
 
-    //    existingPoll.Title = poll.Title;
-    //    existingPoll.Summary = poll.Summary;
-    //    return true;
-    //}
-    //public bool Delete(int id)
-    //{
-    //    var Poll = GetById(id);
-    //    if (Poll is null)
-    //        return false;
+        currentPoll.Title = poll.Title;
+        currentPoll.Summary = poll.Summary;
+        currentPoll.IsPublished = poll.IsPublished;
+        currentPoll.StartsAt = poll.StartsAt;
+        currentPoll.EndsAt = poll.EndsAt;
 
-    //    _poll.Remove(Poll);
+        await _context.SaveChangesAsync(cancellationToken);
 
-    //    return true;
-    //}
+        return true;
+    }
+
+    public async Task<bool> Delete(int id, CancellationToken cancellationToken = default)
+    {
+        var poll = await GetByIdAsync(id, cancellationToken);
+        if (poll is null)
+            return false;
+
+        _context.Polls.Remove(poll);
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return true;
+    }
 }
