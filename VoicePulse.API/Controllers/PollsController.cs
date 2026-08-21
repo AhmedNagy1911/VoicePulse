@@ -43,7 +43,7 @@ public class PollsController(IPollService pollService) : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> Update([FromRoute] int id, [FromBody] PollRequest poll, CancellationToken cancellationToken = default)
     {
-        var isUpdated = await _pollservice.Update(id, poll.Adapt<Poll>(), cancellationToken);
+        var isUpdated = await _pollservice.UpdateAsync(id, poll.Adapt<Poll>(), cancellationToken);
 
         return isUpdated ? NoContent() : NotFound();
     }
@@ -51,8 +51,16 @@ public class PollsController(IPollService pollService) : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete([FromRoute] int id, CancellationToken cancellationToken = default)
     {
-        var isDelete = await _pollservice.Delete(id, cancellationToken);
+        var isDelete = await _pollservice.DeleteAsync(id, cancellationToken);
 
         return isDelete ? NoContent() : NotFound();
+    }
+
+    [HttpPut("{id}/togglePublish")]
+    public async Task<IActionResult> TogglePublish([FromRoute] int id, CancellationToken cancellationToken = default)
+    {
+        var isUpdated = await _pollservice.TogglePublishStatusAsync(id, cancellationToken);
+
+        return isUpdated ? NoContent() : NotFound();
     }
 }

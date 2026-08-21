@@ -25,7 +25,7 @@ public class PollService(IApplicationDbContext context) : IPollService
         return poll;
     }
 
-    public async Task<bool> Update(int id, Poll poll, CancellationToken cancellationToken = default)
+    public async Task<bool> UpdateAsync(int id, Poll poll, CancellationToken cancellationToken = default)
     {
         var currentPoll = await GetByIdAsync(id, cancellationToken);
         if (currentPoll is null)
@@ -42,7 +42,7 @@ public class PollService(IApplicationDbContext context) : IPollService
         return true;
     }
 
-    public async Task<bool> Delete(int id, CancellationToken cancellationToken = default)
+    public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
         var poll = await GetByIdAsync(id, cancellationToken);
         if (poll is null)
@@ -53,4 +53,19 @@ public class PollService(IApplicationDbContext context) : IPollService
 
         return true;
     }
+
+    public async Task<bool> TogglePublishStatusAsync(int id, CancellationToken cancellationToken = default)
+    {
+        var poll = await GetByIdAsync(id, cancellationToken);
+
+        if (poll is null)
+            return false;
+        
+        poll.IsPublished = !poll.IsPublished;
+
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return true;
+    }
+
 }
