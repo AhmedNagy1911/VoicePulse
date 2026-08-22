@@ -1,11 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 using VoicePulse.Application.Common.Interfaces;
 using VoicePulse.Domain.Entities;
 
 namespace VoicePulse.Infrastructure.Persistence;
 
-public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options) , IApplicationDbContext
+public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) 
+    : IdentityDbContext<ApplicationUser>(options) , IApplicationDbContext
 {
     public DbSet<Poll> Polls { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
