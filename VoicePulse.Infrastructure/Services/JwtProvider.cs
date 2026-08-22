@@ -1,14 +1,18 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using VoicePulse.Application.Interfaces;
 using VoicePulse.Domain.Entities;
+using VoicePulse.Infrastructure.Options;
 
 namespace VoicePulse.Infrastructure.Services;
 
-public class JwtProvider : IJwtProvider
+public class JwtProvider(IOptions<JwtOptions> options) : IJwtProvider
 {
+    private readonly JwtOptions _options = options.Value;
+
     public (string token, int expiresIn) GenerateToken(ApplicationUser user)
     {
         Claim[] claims = [
@@ -19,19 +23,19 @@ public class JwtProvider : IJwtProvider
             new(JwtRegisteredClaimNames.Jti , Guid.NewGuid().ToString())
         ];
 
-        var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("e8bcbf9ab03c6a9a59713c068f5be7e13c29c2a6"));
+        var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.Key));
         var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
 
-        var expiresIn = 30;
+        
 
         var token = new JwtSecurityToken(
-            issuer: "VoicePulseApp",
-            audience: "VoicePulseApp Users",
+            issuer: _options.Issuer,
+            audience:  _options.Audience,
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(expiresIn),
+            expires: DateTime.UtcNow.AddMinutes(_options.ExpiryMinutes),
             signingCredentials: signingCredentials
         );
 
-        return(token : new JwtSecurityTokenHandler().WriteToken(token), expiresIn: expiresIn * 60);
+        return(token : new JwtSecurityTokenHandler().WriteToken(token), expiresIn: _options.ExpiryMinutes * 60);
     }
 }
