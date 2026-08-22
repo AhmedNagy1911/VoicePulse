@@ -1,5 +1,6 @@
 using Microsoft.OpenApi;
 using VoicePulse.Application;
+using VoicePulse.Domain.Entities;
 using VoicePulse.Infrastructure;
 
 
@@ -63,10 +64,11 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
-
+app.MapIdentityApi<ApplicationUser>();
 app.MapControllers();
 
 app.Run();

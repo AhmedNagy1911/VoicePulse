@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using VoicePulse.Application.Common.Interfaces;
+using VoicePulse.Domain.Entities;
 using VoicePulse.Infrastructure.Persistence;
 
 namespace VoicePulse.Infrastructure;
@@ -21,6 +22,9 @@ public static class DependencyInjection
 
         services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
 
+
+        services.AddIdentityApiEndpoints<ApplicationUser>()
+            .AddEntityFrameworkStores<ApplicationDbContext>();
 
         return services;
     }
