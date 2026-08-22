@@ -25,6 +25,7 @@ public static class DependencyInjection
         // ── Services ──────────────────────────────────────────────────────────
         services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IJwtProvider, JwtProvider>();
 
 
         // Add Auth Config 
