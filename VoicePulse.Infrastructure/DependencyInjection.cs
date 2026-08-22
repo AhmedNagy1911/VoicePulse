@@ -34,10 +34,12 @@ public static class DependencyInjection
         //Add Options Pattern 
         services.Configure<JwtOptions>(config.GetSection(JwtOptions.SectionName));
 
+        var jwtSettings = config.GetSection(JwtOptions.SectionName).Get<JwtOptions>();
+
         // Add Auth Config 
         services.AddIdentity<ApplicationUser, IdentityRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>();
-
+        
         //Add JWT Configurations
         services.AddAuthentication(options =>
         {
@@ -53,9 +55,9 @@ public static class DependencyInjection
                 ValidateAudience = true,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"]!)),
-                ValidIssuer = config["Jwt:Issuer"],
-                ValidAudience = config["Jwt:Audience"]
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings?.Key!)),
+                ValidIssuer = jwtSettings?.Issuer,
+                ValidAudience = jwtSettings?.Audience
             };
 
         });
