@@ -66,6 +66,8 @@ public class AuthService(UserManager<ApplicationUser> userManager , IJwtProvider
         if (userRefreshToken is null)
             return null;
 
+        userRefreshToken.RevokedOn = DateTime.UtcNow;
+
         //generate JWT NewToken
         var (newToken, expiresIn) = _jwtprovider.GenerateToken(user);
 
