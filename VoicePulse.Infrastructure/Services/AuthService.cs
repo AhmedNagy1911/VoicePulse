@@ -27,14 +27,65 @@ public class AuthService(UserManager<ApplicationUser> userManager , IJwtProvider
             return null;
 
         //generate JWT token
-
         var (token, expiresIn) = _jwtprovider.GenerateToken(user);
+
+        // Add RefreshToken
         var refreshToken = GenerateRefreshToken();
         var refreshTokenExpiration = DateTime.UtcNow.AddDays(_refreshTokenEpiryDays);
+
+        user.RefreshTokens.Add(new RefreshToken
+        {
+            Token = refreshToken,
+            ExpiresOn = refreshTokenExpiration
+        });
+
+        await _usermanager.UpdateAsync(user);
 
         //Return New AuthResponse() 
         return new AuthResponse(user.Id , user.Email , user.FristName ,user.LastName , token , expiresIn , refreshToken, refreshTokenExpiration);
     }
+
+
+    public async Task<AuthResponse?> GetRefreshTokenAsync(string token, string refreshToken, CancellationToken cancellationToken = default)
+    {
+        //chech userid? 
+        var userId =_jwtprovider.ValidateToken(token);
+
+        if (userId is null)
+            return null;
+
+        ////chech user?
+        var user =await _usermanager.FindByIdAsync(userId);
+
+        if (user is null)
+            return null;
+
+        //chech token?
+        var userRefreshToken = user.RefreshTokens.SingleOrDefault(x => x.Token == refreshToken && x.IsActive);
+
+        if (userRefreshToken is null)
+            return null;
+
+        //generate JWT NewToken
+        var (newToken, expiresIn) = _jwtprovider.GenerateToken(user);
+
+        // Add NewRefreshToken
+        var newRefreshToken = GenerateRefreshToken();
+        var refreshTokenExpiration = DateTime.UtcNow.AddDays(_refreshTokenEpiryDays);
+
+        user.RefreshTokens.Add(new RefreshToken
+        {
+            Token = newRefreshToken,
+            ExpiresOn = refreshTokenExpiration
+        });
+
+        await _usermanager.UpdateAsync(user);
+
+        //Return New AuthResponse() 
+        return new AuthResponse(user.Id, user.Email, user.FristName, user.LastName, newToken, expiresIn, newRefreshToken, refreshTokenExpiration);
+
+    }
+
 
     private static string GenerateRefreshToken()
     {
