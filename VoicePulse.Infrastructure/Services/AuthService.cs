@@ -27,6 +27,6 @@ public class AuthService(UserManager<ApplicationUser> userManager) : IAuthServic
 
         //Return New AuthResponse() 
 
-        return new AuthResponse(user.Id ,user.FristName ,user.LastName ,user.Email , "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30" ,3600);
+        return new AuthResponse(user.Id , user.Email , user.FristName ,user.LastName , "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30" ,3600);
     }
 }

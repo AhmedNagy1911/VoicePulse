@@ -1,6 +1,5 @@
 using Microsoft.OpenApi;
 using VoicePulse.Application;
-using VoicePulse.Domain.Entities;
 using VoicePulse.Infrastructure;
 
 

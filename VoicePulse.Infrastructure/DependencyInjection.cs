@@ -1,8 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using VoicePulse.Application.Common.Interfaces;
 using VoicePulse.Application.Interfaces;
+using VoicePulse.Domain.Entities;
 using VoicePulse.Infrastructure.Persistence;
 using VoicePulse.Infrastructure.Services;
 
@@ -24,8 +26,10 @@ public static class DependencyInjection
         services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
         services.AddScoped<IAuthService, AuthService>();
 
-      
 
+        // Add Auth Config 
+        services.AddIdentity<ApplicationUser, IdentityRole>()
+            .AddEntityFrameworkStores<ApplicationDbContext>();
 
         return services;
 
