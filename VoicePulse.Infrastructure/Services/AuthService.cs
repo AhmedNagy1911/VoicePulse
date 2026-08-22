@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using System.Security.Cryptography;
 using VoicePulse.Application.Contracts.Authentication;
 using VoicePulse.Application.Interfaces;
 using VoicePulse.Domain.Entities;
@@ -10,6 +11,7 @@ public class AuthService(UserManager<ApplicationUser> userManager , IJwtProvider
     private readonly UserManager<ApplicationUser> _usermanager = userManager;
     private readonly IJwtProvider _jwtprovider = jwtProvider;
 
+    private readonly int _refreshTokenEpiryDays = 14;
     public async Task<AuthResponse?> GetTokenAsync(string email, string password, CancellationToken cancellationToken = default)
     {
         //chech user?
@@ -27,8 +29,15 @@ public class AuthService(UserManager<ApplicationUser> userManager , IJwtProvider
         //generate JWT token
 
         var (token, expiresIn) = _jwtprovider.GenerateToken(user);
+        var refreshToken = GenerateRefreshToken();
+        var refreshTokenExpiration = DateTime.UtcNow.AddDays(_refreshTokenEpiryDays);
 
         //Return New AuthResponse() 
-        return new AuthResponse(user.Id , user.Email , user.FristName ,user.LastName , token , expiresIn);
+        return new AuthResponse(user.Id , user.Email , user.FristName ,user.LastName , token , expiresIn , refreshToken, refreshTokenExpiration);
+    }
+
+    private static string GenerateRefreshToken()
+    {
+        return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
     }
 }
