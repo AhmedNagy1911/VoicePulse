@@ -8,6 +8,7 @@ using System.Text;
 using VoicePulse.Application.Common.Interfaces;
 using VoicePulse.Application.Interfaces;
 using VoicePulse.Domain.Entities;
+using VoicePulse.Infrastructure.Options;
 using VoicePulse.Infrastructure.Persistence;
 using VoicePulse.Infrastructure.Services;
 
@@ -30,6 +31,8 @@ public static class DependencyInjection
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IJwtProvider, JwtProvider>();
 
+        //Add Options Pattern 
+        services.Configure<JwtOptions>(config.GetSection(JwtOptions.SectionName));
 
         // Add Auth Config 
         services.AddIdentity<ApplicationUser, IdentityRole>()
