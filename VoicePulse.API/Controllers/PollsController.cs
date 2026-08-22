@@ -1,4 +1,5 @@
 ﻿using Mapster;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VoicePulse.Application.Contracts.Polls;
 using VoicePulse.Application.Interfaces;
@@ -13,6 +14,7 @@ public class PollsController(IPollService pollService) : ControllerBase
     private readonly IPollService _pollservice = pollService;
 
     [HttpGet("")]
+    [Authorize]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken = default)
     {
         var polls = await _pollservice.GetAllAsync(cancellationToken);

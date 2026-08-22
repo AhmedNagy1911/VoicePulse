@@ -1,7 +1,10 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using VoicePulse.Application.Common.Interfaces;
 using VoicePulse.Application.Interfaces;
 using VoicePulse.Domain.Entities;
@@ -32,7 +35,29 @@ public static class DependencyInjection
         services.AddIdentity<ApplicationUser, IdentityRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>();
 
-        return services;
+        //Add JWT Configurations
+        services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(o =>
+        {
+            o.SaveToken = true;
+            o.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("e8bcbf9ab03c6a9a59713c068f5be7e13c29c2a6")),
+                ValidIssuer = "VoicePulseApp",
+                ValidAudience = "VoicePulseApp Users"
+            };
+
+        });
+
+return services;
 
         ////Add Identity Api Endpoints
         //services.AddIdentityApiEndpoints<ApplicationUser>()

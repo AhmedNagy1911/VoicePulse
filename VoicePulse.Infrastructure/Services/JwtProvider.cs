@@ -19,19 +19,19 @@ public class JwtProvider : IJwtProvider
             new(JwtRegisteredClaimNames.Jti , Guid.NewGuid().ToString())
         ];
 
-        var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("YOUR_SUPER_SECRET_KEY_MINIMUM_32_CHARACTERS_LONG"));
+        var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("e8bcbf9ab03c6a9a59713c068f5be7e13c29c2a6"));
         var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
 
         var expiresIn = 30;
 
         var token = new JwtSecurityToken(
             issuer: "VoicePulseApp",
-            audience: "VoicePulseUser",
+            audience: "VoicePulseApp Users",
             claims: claims,
             expires: DateTime.UtcNow.AddMinutes(expiresIn),
             signingCredentials: signingCredentials
         );
 
-        return(token : new JwtSecurityTokenHandler().WriteToken(token), expiresIn: expiresIn);
+        return(token : new JwtSecurityTokenHandler().WriteToken(token), expiresIn: expiresIn*60);
     }
 }

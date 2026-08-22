@@ -5,9 +5,10 @@ using VoicePulse.Domain.Entities;
 
 namespace VoicePulse.Infrastructure.Services;
 
-public class AuthService(UserManager<ApplicationUser> userManager) : IAuthService
+public class AuthService(UserManager<ApplicationUser> userManager , IJwtProvider jwtProvider) : IAuthService
 {
     private readonly UserManager<ApplicationUser> _usermanager = userManager;
+    private readonly IJwtProvider _jwtprovider = jwtProvider;
 
     public async Task<AuthResponse?> GetTokenAsync(string email, string password, CancellationToken cancellationToken = default)
     {
@@ -25,9 +26,9 @@ public class AuthService(UserManager<ApplicationUser> userManager) : IAuthServic
 
         //generate JWT token
 
-
+        var (token, expiresIn) = _jwtprovider.GenerateToken(user);
 
         //Return New AuthResponse() 
-        return new AuthResponse(user.Id , user.Email , user.FristName ,user.LastName , "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30" ,3600);
+        return new AuthResponse(user.Id , user.Email , user.FristName ,user.LastName , token , expiresIn);
     }
 }
