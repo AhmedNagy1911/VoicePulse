@@ -32,7 +32,11 @@ public static class DependencyInjection
         services.AddScoped<IJwtProvider, JwtProvider>();
 
         //Add Options Pattern 
-        services.Configure<JwtOptions>(config.GetSection(JwtOptions.SectionName));
+        ////services.Configure<JwtOptions>(config.GetSection(JwtOptions.SectionName));
+        services.AddOptions<JwtOptions>()
+            .BindConfiguration(JwtOptions.SectionName)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
 
         var jwtSettings = config.GetSection(JwtOptions.SectionName).Get<JwtOptions>();
 
