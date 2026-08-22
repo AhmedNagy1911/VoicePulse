@@ -2,7 +2,9 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using VoicePulse.Application.Common.Interfaces;
+using VoicePulse.Application.Interfaces;
 using VoicePulse.Infrastructure.Persistence;
+using VoicePulse.Infrastructure.Services;
 
 namespace VoicePulse.Infrastructure;
 
@@ -18,8 +20,9 @@ public static class DependencyInjection
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(connectionString));
 
-
+        // ── Services ──────────────────────────────────────────────────────────
         services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
+        services.AddScoped<IAuthService, AuthService>();
 
       
 
