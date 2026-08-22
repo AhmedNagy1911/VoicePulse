@@ -50,14 +50,15 @@ public static class DependencyInjection
                 ValidateAudience = true,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("e8bcbf9ab03c6a9a59713c068f5be7e13c29c2a6")),
-                ValidIssuer = "VoicePulseApp",
-                ValidAudience = "VoicePulseApp Users"
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"]!)),
+                ValidIssuer = config["Jwt:Issuer"],
+                ValidAudience = config["Jwt:Audience"]
             };
 
         });
 
-return services;
+
+        return services;
 
         ////Add Identity Api Endpoints
         //services.AddIdentityApiEndpoints<ApplicationUser>()

@@ -32,6 +32,6 @@ public class JwtProvider : IJwtProvider
             signingCredentials: signingCredentials
         );
 
-        return(token : new JwtSecurityTokenHandler().WriteToken(token), expiresIn: expiresIn*60);
+        return(token : new JwtSecurityTokenHandler().WriteToken(token), expiresIn: expiresIn * 60);
     }
 }
