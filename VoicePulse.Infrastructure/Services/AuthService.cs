@@ -66,6 +66,7 @@ public class AuthService(UserManager<ApplicationUser> userManager , IJwtProvider
         if (userRefreshToken is null)
             return null;
 
+        //remove old token
         userRefreshToken.RevokedOn = DateTime.UtcNow;
 
         //generate JWT NewToken
@@ -88,9 +89,38 @@ public class AuthService(UserManager<ApplicationUser> userManager , IJwtProvider
 
     }
 
+    public async Task<bool> RevokeRefreshTokenAsync(string token, string refreshToken, CancellationToken cancellationToken = default)
+    {
+        //chech userid? 
+        var userId = _jwtprovider.ValidateToken(token);
+
+        if (userId is null)
+            return false;
+
+        ////chech user?
+        var user = await _usermanager.FindByIdAsync(userId);
+
+        if (user is null)
+            return false;
+
+        //chech token?
+        var userRefreshToken = user.RefreshTokens.SingleOrDefault(x => x.Token == refreshToken && x.IsActive);
+
+        if (userRefreshToken is null)
+            return false;
+
+        //remove old token
+        userRefreshToken.RevokedOn = DateTime.UtcNow;
+
+        await _usermanager.UpdateAsync(user);
+
+        return true;
+
+    }
 
     private static string GenerateRefreshToken()
     {
         return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
     }
+
 }
