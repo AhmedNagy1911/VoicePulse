@@ -46,6 +46,13 @@ public class PollService(IApplicationDbContext context) : IPollService
 
     public async Task<Result> UpdateAsync(int id, PollRequest request , CancellationToken cancellationToken = default)
     {
+        var isExistingTitle = await _context.Polls.AnyAsync(x => x.Title == request.Title && x.Id != id  , cancellationToken: cancellationToken);
+
+        if (isExistingTitle)
+        {
+            return Result.Failure<PollResponse>(PollErrors.DuplicatedTitle);
+        }
+
         var currentPoll = await _context.Polls.FindAsync(id, cancellationToken);
 
         if (currentPoll is null)
