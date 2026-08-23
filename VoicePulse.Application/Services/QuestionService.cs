@@ -28,8 +28,6 @@ public class QuestionService(IApplicationDbContext context) : IQuestionService
         var question = request.Adapt<Question>();
         question.PollId = pollId;
 
-        request.Answers.ForEach(answer => question.Answers.Add(new Answer { Content = answer }));
-
         await _context.Questions.AddAsync(question, cancellationToken);
         await _context.SaveChangesAsync(cancellationToken);
 
