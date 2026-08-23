@@ -9,12 +9,12 @@ namespace VoicePulse.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class PollsController(IPollService pollService) : ControllerBase
 {
     private readonly IPollService _pollservice = pollService;
 
     [HttpGet("")]
-    [Authorize]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken = default)
     {
         var polls = await _pollservice.GetAllAsync(cancellationToken);

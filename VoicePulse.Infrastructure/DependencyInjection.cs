@@ -26,8 +26,8 @@ public static class DependencyInjection
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(connectionString));
 
-        // ── Services ──────────────────────────────────────────────────────────
-        services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
+        // ── Services ─────────────────────────────────────────────────────────
+        services.AddSingleton<IApplicationDbContext, ApplicationDbContext>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IJwtProvider, JwtProvider>();
 
