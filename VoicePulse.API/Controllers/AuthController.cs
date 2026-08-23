@@ -15,7 +15,7 @@ public class AuthController(IAuthService authService) : ControllerBase
     {
         var authResult = await _authservice.GetTokenAsync(request.Email, request.Password, cancellationToken);
 
-        return authResult is null ? BadRequest("Invalid email/password") : Ok(authResult);
+        return authResult.IsSuccess ? Ok(authResult.Value) : BadRequest(authResult.Error);
     }
 
     [HttpPost("refresh")]
