@@ -14,6 +14,7 @@ public static class DependencyInjection
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
         services.AddScoped<IPollService, PollService>();
+        services.AddScoped<IQuestionService, QuestionService>();
 
 
 
