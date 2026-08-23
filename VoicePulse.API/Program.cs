@@ -1,4 +1,5 @@
 using Microsoft.OpenApi;
+using VoicePulse.API.Exceptions;
 using VoicePulse.Application;
 using VoicePulse.Infrastructure;
 
@@ -9,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
-// Add application and infrastructure Dependency injection
+// Register Application and Infrastructure services
 builder.Services
         .AddInfrastructure(builder.Configuration)
         .AddApplication();
@@ -50,6 +51,10 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+// Exception Handler
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
 // CORS
 builder.Services.AddCors(options =>
 {
@@ -82,6 +87,8 @@ app.UseCors();
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.UseExceptionHandler();
 
 app.MapControllers();
 
