@@ -13,6 +13,27 @@ public class QuestionService(IApplicationDbContext context) : IQuestionService
 {
     private readonly IApplicationDbContext _context = context;
 
+    public async Task<Result<IEnumerable<QuestionResponse>>> GetAllAsync(int pollId, CancellationToken cancellationToken  = default)
+    {
+        var pollIsExists = await _context.Polls.AnyAsync(x => x.Id == pollId, cancellationToken: cancellationToken);
+
+        if (!pollIsExists)
+            return Result.Failure<IEnumerable<QuestionResponse>>(PollErrors.PollNotFound);
+
+        var questions = await _context.Questions
+              .Where(x=> x.PollId == pollId)
+              .Include(x => x.Answers)
+              //.Select(q => new QuestionResponse(
+              //    q.Id,
+              //    q.Content,
+              //    q.Answers.Select(a => new AnswerResponse(a.Id, a.Content))
+              //))
+              .ProjectToType<QuestionResponse>()
+              .AsNoTracking()
+              .ToListAsync(cancellationToken: cancellationToken);
+
+        return Result.Success<IEnumerable<QuestionResponse>>(questions);
+    }
     public async Task<Result<QuestionResponse>> AddAsync(int pollId, QuestionRequest request, CancellationToken cancellationToken = default)
     {
         var pollIsExists = await _context.Polls.AnyAsync(x => x.Id == pollId, cancellationToken: cancellationToken);

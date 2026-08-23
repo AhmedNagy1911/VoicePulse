@@ -14,6 +14,16 @@ public class QuestionsController(IQuestionService questionService) : ControllerB
 {
     private readonly IQuestionService _questionservice = questionService;
 
+    [HttpGet("")]
+    public async Task<IActionResult> GetAll([FromRoute] int pollId, CancellationToken cancellationToken)
+    {
+        var result = await _questionservice.GetAllAsync(pollId, cancellationToken);
+
+        return result.IsSuccess 
+            ? Ok(result.Value) 
+            : result.ToProblem();
+    }
+
     [HttpGet("{id}")]
     public async Task<IActionResult> Get([FromRoute] int pollId, [FromRoute] int id, CancellationToken cancellationToken)
     {
