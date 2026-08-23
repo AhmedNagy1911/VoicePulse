@@ -73,5 +73,17 @@ public class QuestionService(IApplicationDbContext context) : IQuestionService
 
     }
 
-   
+    public async Task<Result> ToggleStatusAsync(int pollId, int id, CancellationToken cancellationToken = default)
+    {
+        var question = await _context.Questions.SingleOrDefaultAsync(x => x.PollId == pollId && x.Id == id, cancellationToken);
+
+        if (question is null)
+            return Result.Failure(QuestionErrors.QuestionNotFound);
+
+        question.IsActive = !question.IsActive;
+
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return Result.Success();
+    }
 }

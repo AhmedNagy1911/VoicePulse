@@ -43,4 +43,14 @@ public class QuestionsController(IQuestionService questionService) : ControllerB
             ? CreatedAtAction(nameof(Get), new { pollId, result.Value.Id }, result.Value)
             : result.ToProblem();
     }
+
+    [HttpPut("{id}/toggleStatus")]
+    public async Task<IActionResult> ToggleStatus([FromRoute] int pollId, [FromRoute] int id, CancellationToken cancellationToken)
+    {
+        var result = await _questionservice.ToggleStatusAsync(pollId, id, cancellationToken);
+
+        return result.IsSuccess 
+            ? NoContent() 
+            : result.ToProblem();
+    }
 }

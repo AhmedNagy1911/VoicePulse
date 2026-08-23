@@ -10,4 +10,6 @@ public interface IQuestionService
     Task<Result<QuestionResponse>> GetAsync(int pollId, int id, CancellationToken cancellationToken = default);
     Task<Result<QuestionResponse>> AddAsync(int pollId , QuestionRequest request  , CancellationToken cancellationToken = default);
 
+    Task<Result> ToggleStatusAsync(int pollId, int id, CancellationToken cancellationToken = default);
+
 }
