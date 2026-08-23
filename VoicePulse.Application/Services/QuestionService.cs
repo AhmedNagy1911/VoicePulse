@@ -34,6 +34,23 @@ public class QuestionService(IApplicationDbContext context) : IQuestionService
 
         return Result.Success<IEnumerable<QuestionResponse>>(questions);
     }
+
+    public async Task<Result<QuestionResponse>> GetAsync(int pollId, int id, CancellationToken cancellationToken = default)
+    {
+        var questions = await _context.Questions
+              .Where(x => x.PollId == pollId && x.Id == id)
+              .Include(x => x.Answers)
+              .ProjectToType<QuestionResponse>()
+              .AsNoTracking()
+              .SingleOrDefaultAsync(cancellationToken: cancellationToken);
+
+        if (questions is null)
+            return Result.Failure<QuestionResponse>(QuestionErrors.QuestionNotFound);
+
+        return Result.Success(questions);
+
+    }
+
     public async Task<Result<QuestionResponse>> AddAsync(int pollId, QuestionRequest request, CancellationToken cancellationToken = default)
     {
         var pollIsExists = await _context.Polls.AnyAsync(x => x.Id == pollId, cancellationToken: cancellationToken);
@@ -55,4 +72,6 @@ public class QuestionService(IApplicationDbContext context) : IQuestionService
         return Result.Success(question.Adapt<QuestionResponse>());
 
     }
+
+   
 }

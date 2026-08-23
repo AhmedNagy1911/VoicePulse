@@ -27,11 +27,15 @@ public class QuestionsController(IQuestionService questionService) : ControllerB
     [HttpGet("{id}")]
     public async Task<IActionResult> Get([FromRoute] int pollId, [FromRoute] int id, CancellationToken cancellationToken)
     {
-        return Ok();
+        var result = await _questionservice.GetAsync(pollId ,id , cancellationToken);
+
+        return result.IsSuccess
+            ? Ok(result.Value)
+            : result.ToProblem();
     }
 
     [HttpPost("")]
-    public async Task<IActionResult> Add([FromRoute] int pollId , QuestionRequest request , CancellationToken cancellationToken)
+    public async Task<IActionResult> Add([FromRoute] int pollId , [FromBody] QuestionRequest request , CancellationToken cancellationToken)
     {
         var result = await _questionservice.AddAsync(pollId,request,cancellationToken);
 
