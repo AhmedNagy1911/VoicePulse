@@ -1,6 +1,7 @@
 ﻿using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using VoicePulse.API.Extensions;
 using VoicePulse.Application.Common.Results;
 using VoicePulse.Application.Contracts.Polls;
 using VoicePulse.Application.Interfaces;
@@ -32,7 +33,7 @@ public class PollsController(IPollService pollService) : ControllerBase
 
         return result.IsSuccess
             ? Ok(result.Value)
-            : Problem(statusCode: StatusCodes.Status404NotFound, title: result.Error.Code, detail: result.Error.Description);
+            :result.ToProblem();
     }
 
 
@@ -49,7 +50,9 @@ public class PollsController(IPollService pollService) : ControllerBase
     {
         var result = await _pollservice.UpdateAsync(id, request, cancellationToken);
 
-        return result.IsSuccess ? NoContent() : NotFound(result.Error);
+        return result.IsSuccess 
+            ? NoContent() 
+            : result.ToProblem();
     }
 
     [HttpDelete("{id}")]
@@ -57,7 +60,9 @@ public class PollsController(IPollService pollService) : ControllerBase
     {
         var result = await _pollservice.DeleteAsync(id, cancellationToken);
 
-        return result.IsSuccess ? NoContent() : Problem(statusCode: StatusCodes.Status404NotFound, title: result.Error.Code, detail: result.Error.Description);
+        return result.IsSuccess 
+            ? NoContent() 
+            : result.ToProblem();
     }
 
     [HttpPut("{id}/togglePublish")]
@@ -65,6 +70,8 @@ public class PollsController(IPollService pollService) : ControllerBase
     {
         var result = await _pollservice.TogglePublishStatusAsync(id, cancellationToken);
 
-        return result.IsSuccess ? NoContent() : Problem(statusCode: StatusCodes.Status404NotFound, title: result.Error.Code, detail: result.Error.Description);
+        return result.IsSuccess 
+            ? NoContent() 
+            : result.ToProblem();
     }
 }
