@@ -27,15 +27,21 @@ public class PollService(IApplicationDbContext context) : IPollService
     }
         
 
-    public async Task<PollResponse> AddAsync(PollRequest request, CancellationToken cancellationToken = default)
+    public async Task<Result<PollResponse>> AddAsync(PollRequest request, CancellationToken cancellationToken = default)
     {
+        var isExistingTitle =await _context.Polls.AnyAsync(x => x.Title == request.Title, cancellationToken: cancellationToken);
+        if (isExistingTitle)
+        { 
+            return Result.Failure<PollResponse>(PollErrors.DuplicatedTitle);
+        }
+
         var poll = request.Adapt<Poll>();
 
         await _context.Polls.AddAsync(poll, cancellationToken);
 
         await _context.SaveChangesAsync(cancellationToken);
 
-        return poll.Adapt<PollResponse>();
+        return Result.Success(poll.Adapt<PollResponse>());
     }
 
     public async Task<Result> UpdateAsync(int id, PollRequest request , CancellationToken cancellationToken = default)
