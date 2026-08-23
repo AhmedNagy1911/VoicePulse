@@ -1,5 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Mapster;
+using Microsoft.EntityFrameworkCore;
+using VoicePulse.Application.Common.Errors;
 using VoicePulse.Application.Common.Interfaces;
+using VoicePulse.Application.Common.Results;
+using VoicePulse.Application.Contracts.Polls;
 using VoicePulse.Application.Interfaces;
 using VoicePulse.Domain.Entities;
 
@@ -13,59 +17,72 @@ public class PollService(IApplicationDbContext context) : IPollService
         await _context.Polls.AsNoTracking().ToListAsync(cancellationToken);
 
 
-    public async Task<Poll?> GetByIdAsync(int id, CancellationToken cancellationToken = default) =>
-        await _context.Polls.FindAsync(id, cancellationToken);
-
-    public async Task<Poll> AddAsync(Poll poll, CancellationToken cancellationToken = default)
+    public async Task<Result<PollResponse>> GetAsync(int id, CancellationToken cancellationToken = default)
     {
+        var result = await _context.Polls.FindAsync(id, cancellationToken);
+
+        return result is not null
+            ? Result.Success(result.Adapt<PollResponse>())
+            : Result.Failure<PollResponse>(PollErrors.PollNotFound);
+    }
+        
+
+    public async Task<PollResponse> AddAsync(PollRequest request, CancellationToken cancellationToken = default)
+    {
+        var poll = request.Adapt<Poll>();
+
         await _context.Polls.AddAsync(poll, cancellationToken);
 
         await _context.SaveChangesAsync(cancellationToken);
 
-        return poll;
+        return poll.Adapt<PollResponse>();
     }
 
-    public async Task<bool> UpdateAsync(int id, Poll poll, CancellationToken cancellationToken = default)
+    public async Task<Result> UpdateAsync(int id, PollRequest request , CancellationToken cancellationToken = default)
     {
-        var currentPoll = await GetByIdAsync(id, cancellationToken);
-        if (currentPoll is null)
-            return false;
+        var currentPoll = await _context.Polls.FindAsync(id, cancellationToken);
 
-        currentPoll.Title = poll.Title;
-        currentPoll.Summary = poll.Summary;
-        currentPoll.IsPublished = poll.IsPublished;
-        currentPoll.StartsAt = poll.StartsAt;
-        currentPoll.EndsAt = poll.EndsAt;
+        if (currentPoll is null)
+            return Result.Failure(PollErrors.PollNotFound);
+
+        currentPoll.Title = request.Title;
+        currentPoll.Summary = request.Summary;
+        currentPoll.StartsAt = request.StartsAt;
+        currentPoll.EndsAt = request.EndsAt;
 
         await _context.SaveChangesAsync(cancellationToken);
 
-        return true;
+        return Result.Success();
     }
 
-    public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<Result> DeleteAsync(int id, CancellationToken cancellationToken = default)
     {
-        var poll = await GetByIdAsync(id, cancellationToken);
+        var poll = await _context.Polls.FindAsync(id, cancellationToken);
+
         if (poll is null)
-            return false;
+            return Result.Failure(PollErrors.PollNotFound);
+
 
         _context.Polls.Remove(poll);
         await _context.SaveChangesAsync(cancellationToken);
 
-        return true;
+        return Result.Success();
     }
 
-    public async Task<bool> TogglePublishStatusAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<Result> TogglePublishStatusAsync(int id, CancellationToken cancellationToken = default)
     {
-        var poll = await GetByIdAsync(id, cancellationToken);
+        var poll = await _context.Polls.FindAsync(id, cancellationToken);
 
         if (poll is null)
-            return false;
-        
+            return Result.Failure(PollErrors.PollNotFound);
+
+
         poll.IsPublished = !poll.IsPublished;
 
         await _context.SaveChangesAsync(cancellationToken);
 
-        return true;
+        return Result.Success();
     }
 
+   
 }
