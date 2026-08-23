@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Client.NativeInterop;
 using VoicePulse.Application.Contracts.Authentication;
 using VoicePulse.Application.Interfaces;
 
@@ -15,7 +16,7 @@ public class AuthController(IAuthService authService) : ControllerBase
     {
         var authResult = await _authservice.GetTokenAsync(request.Email, request.Password, cancellationToken);
 
-        return authResult.IsSuccess ? Ok(authResult.Value) : BadRequest(authResult.Error);
+        return authResult.IsSuccess ? Ok(authResult.Value) : Problem(statusCode: StatusCodes.Status400BadRequest, title: authResult.Error.Code, detail: authResult.Error.Description);
     }
 
     [HttpPost("refresh")]
@@ -23,14 +24,14 @@ public class AuthController(IAuthService authService) : ControllerBase
     {
         var authResult = await _authservice.GetRefreshTokenAsync(request.Token, request.RefreshToken, cancellationToken);
 
-        return authResult is null ? BadRequest("Invalid token") : Ok(authResult);
+        return authResult.IsFailure ? Problem(statusCode: StatusCodes.Status400BadRequest, title: authResult.Error.Code, detail: authResult.Error.Description) : Ok(authResult.Value);
     }
 
     [HttpPost("revoke-refresh-token")]
     public async Task<IActionResult> RevokeRefreshTokenAsync(RefreshTokenRequest request, CancellationToken cancellationToken = default)
     {
-        var isRevoked = await _authservice.RevokeRefreshTokenAsync(request.Token, request.RefreshToken, cancellationToken);
+        var result = await _authservice.RevokeRefreshTokenAsync(request.Token, request.RefreshToken, cancellationToken);
 
-        return isRevoked ? Ok(isRevoked) : BadRequest("Operation Faild") ;
+        return result.IsSuccess ? Ok() : Problem(statusCode: StatusCodes.Status400BadRequest, title: result.Error.Code, detail: result.Error.Description); ;
     }
 }

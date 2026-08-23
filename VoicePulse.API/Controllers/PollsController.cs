@@ -10,7 +10,7 @@ namespace VoicePulse.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-//[Authorize]
+[Authorize]
 public class PollsController(IPollService pollService) : ControllerBase
 {
     private readonly IPollService _pollservice = pollService;
@@ -26,7 +26,7 @@ public class PollsController(IPollService pollService) : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById([FromRoute] int id, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> Get([FromRoute] int id, CancellationToken cancellationToken = default)
     {
         var result = await _pollservice.GetAsync(id, cancellationToken);
 
@@ -41,7 +41,7 @@ public class PollsController(IPollService pollService) : ControllerBase
     {
         var newPoll = await _pollservice.AddAsync(request, cancellationToken);
 
-        return CreatedAtAction(nameof(GetById), new { id = newPoll.Id }, newPoll.Adapt<PollResponse>());
+        return CreatedAtAction(nameof(Get), new { id = newPoll.Id }, newPoll.Adapt<PollResponse>());
     }
 
     [HttpPut("{id}")]
