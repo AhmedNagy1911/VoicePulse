@@ -19,11 +19,7 @@ public class PollsController(IPollService pollService) : ControllerBase
     [HttpGet("")]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken = default)
     {
-        var polls = await _pollservice.GetAllAsync(cancellationToken);
-         
-        var response = polls.Adapt<IEnumerable<PollResponse>>();
-
-        return Ok(response);
+        return Ok(await _pollservice.GetAllAsync(cancellationToken));
     }
 
     [HttpGet("{id}")]
