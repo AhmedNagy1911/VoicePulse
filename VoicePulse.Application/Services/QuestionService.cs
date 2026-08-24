@@ -4,6 +4,7 @@ using VoicePulse.Application.Common.Errors;
 using VoicePulse.Application.Common.Interfaces;
 using VoicePulse.Application.Common.Results;
 using VoicePulse.Application.Contracts.Questions;
+using VoicePulse.Application.Contracts.Votes;
 using VoicePulse.Application.Interfaces;
 using VoicePulse.Domain.Entities;
 
@@ -33,6 +34,33 @@ public class QuestionService(IApplicationDbContext context) : IQuestionService
               .ToListAsync(cancellationToken: cancellationToken);
 
         return Result.Success<IEnumerable<QuestionResponse>>(questions);
+    }
+
+    public async  Task<Result<IEnumerable<QuestionResponse>>> GetAvaliableAsync(int pollId, string userId, CancellationToken cancellationToken = default)
+    {
+        var isVote = await _context.Votes.AnyAsync(x => x.PollId == pollId && x.UserId == userId, cancellationToken:cancellationToken);
+
+        if (isVote)
+            return Result.Failure<IEnumerable<QuestionResponse>>(VoteErrors.DuplicatedVote);
+
+        var pollIsExists = await _context.Polls.AnyAsync(x => x.Id == pollId && x.IsPublished && x.StartsAt <= DateOnly.FromDateTime(DateTime.UtcNow) && x.EndsAt >= DateOnly.FromDateTime(DateTime.UtcNow), cancellationToken: cancellationToken);
+         
+        if(!pollIsExists)
+            return Result.Failure<IEnumerable<QuestionResponse>>(PollErrors.PollNotFound);
+
+        var questions =await _context.Questions
+                .Where(x => x.PollId == pollId && x.IsActive)
+                .Include(x => x.Answers)
+                .Select(q => new QuestionResponse(
+                q.Id,
+                q.Content,
+                q.Answers.Where(q => q.IsActive).Select(a => new Contracts.Answers.AnswerResponse(a.Id ,a.Content))
+                ))
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
+
+        return Result.Success<IEnumerable<QuestionResponse>>(questions);
+
     }
 
     public async Task<Result<QuestionResponse>> GetAsync(int pollId, int id, CancellationToken cancellationToken = default)
