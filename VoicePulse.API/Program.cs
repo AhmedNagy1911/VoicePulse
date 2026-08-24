@@ -86,6 +86,7 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+app.UseSerilogRequestLogging();
 
 app.UseHttpsRedirection();
 
