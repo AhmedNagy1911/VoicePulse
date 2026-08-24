@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VoicePulse.API.Extensions;
+using VoicePulse.Application.Common.Errors;
 using VoicePulse.Application.Contracts.Questions;
 using VoicePulse.Application.Interfaces;
 using VoicePulse.Application.Services;
@@ -43,6 +44,17 @@ public class QuestionsController(IQuestionService questionService) : ControllerB
             ? CreatedAtAction(nameof(Get), new { pollId, result.Value.Id }, result.Value)
             : result.ToProblem();
     }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update([FromRoute] int pollId, [FromRoute] int id, [FromBody] QuestionRequest request, CancellationToken cancellationToken)
+    {
+        var result = await _questionservice.UpdateAsync(pollId, id, request, cancellationToken);
+
+        return result.IsSuccess
+            ? NoContent()
+            : result.ToProblem();
+    }
+
 
     [HttpPut("{id}/toggleStatus")]
     public async Task<IActionResult> ToggleStatus([FromRoute] int pollId, [FromRoute] int id, CancellationToken cancellationToken)

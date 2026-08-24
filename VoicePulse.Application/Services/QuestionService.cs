@@ -72,6 +72,48 @@ public class QuestionService(IApplicationDbContext context) : IQuestionService
         return Result.Success(question.Adapt<QuestionResponse>());
 
     }
+    public async Task<Result> UpdateAsync(int pollId, int id, QuestionRequest request, CancellationToken cancellationToken = default)
+    {
+        var questionIsExists = await _context.Questions
+           .AnyAsync(x => x.PollId == pollId
+               && x.Id != id
+               && x.Content == request.Content,
+               cancellationToken
+           );
+
+        if (questionIsExists)
+            return Result.Failure(QuestionErrors.DuplicatedQuestionContent);
+
+        var question = await _context.Questions
+            .Include(x => x.Answers)
+            .SingleOrDefaultAsync(x => x.PollId == pollId && x.Id == id, cancellationToken);
+
+        if (question is null)
+            return Result.Failure(QuestionErrors.QuestionNotFound);
+
+        question.Content = request.Content;
+
+        //current answers
+        var currentAnswers = question.Answers.Select(x => x.Content).ToList();
+
+        //add new answer
+        var newAnswers = request.Answers.Except(currentAnswers).ToList();
+
+        newAnswers.ForEach(answer =>
+        {
+            question.Answers.Add(new Answer { Content = answer });
+        });
+
+        question.Answers.ToList().ForEach(answer =>
+        {
+            answer.IsActive = request.Answers.Contains(answer.Content);
+        });
+
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return Result.Success();
+
+    }
 
     public async Task<Result> ToggleStatusAsync(int pollId, int id, CancellationToken cancellationToken = default)
     {
@@ -85,5 +127,5 @@ public class QuestionService(IApplicationDbContext context) : IQuestionService
         await _context.SaveChangesAsync(cancellationToken);
 
         return Result.Success();
-    }
+    } 
 }
