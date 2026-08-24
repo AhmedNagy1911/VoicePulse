@@ -60,7 +60,6 @@ public class QuestionService(IApplicationDbContext context) : IQuestionService
                 .ToListAsync(cancellationToken);
 
         return Result.Success<IEnumerable<QuestionResponse>>(questions);
-
     }
 
     public async Task<Result<QuestionResponse>> GetAsync(int pollId, int id, CancellationToken cancellationToken = default)
