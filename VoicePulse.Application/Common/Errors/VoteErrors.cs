@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
-using VoicePulse.Application.Common.Errors;
 
-namespace VoicePulse.Application.Contracts.Votes;
+namespace VoicePulse.Application.Common.Errors;
 
 public static class VoteErrors
 {

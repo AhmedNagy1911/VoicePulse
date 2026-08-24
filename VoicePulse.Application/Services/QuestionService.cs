@@ -4,7 +4,6 @@ using VoicePulse.Application.Common.Errors;
 using VoicePulse.Application.Common.Interfaces;
 using VoicePulse.Application.Common.Results;
 using VoicePulse.Application.Contracts.Questions;
-using VoicePulse.Application.Contracts.Votes;
 using VoicePulse.Application.Interfaces;
 using VoicePulse.Domain.Entities;
 
