@@ -1,4 +1,5 @@
 using Microsoft.OpenApi;
+using Serilog;
 using VoicePulse.API.Exceptions;
 using VoicePulse.Application;
 using VoicePulse.Infrastructure;
@@ -66,6 +67,12 @@ builder.Services.AddCors(options =>
             .AllowAnyHeader();
     });
 });
+
+// Configure application logging with Serilog
+builder.Host.UseSerilog((context, configuration) =>
+    configuration.ReadFrom.Configuration(context.Configuration)
+);
+
 
 var app = builder.Build();
 
