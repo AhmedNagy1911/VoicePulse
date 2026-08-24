@@ -16,6 +16,7 @@ public static class DependencyInjection
         services.AddScoped<IPollService, PollService>();
         services.AddScoped<IQuestionService, QuestionService>();
         services.AddScoped<IVoteService, VoteService>();
+        services.AddScoped<IResultService, ResultService>();
 
 
         //Add Mapster 
