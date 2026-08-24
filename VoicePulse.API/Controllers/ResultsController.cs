@@ -32,4 +32,11 @@ public class ResultsController(IResultService resultService ) : ControllerBase
     }
 
 
+    [HttpGet("votes-per-question")]
+    public async Task<IActionResult> VotesPerQuestion([FromRoute] int pollId, CancellationToken cancellationToken)
+    {
+        var result = await _resultservice.GetVotesPerQuestionAsync(pollId, cancellationToken);
+
+        return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+    }
 }
