@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using VoicePulse.API.Extensions;
 using VoicePulse.Application.Interfaces;
+using VoicePulse.Application.Services;
 
 namespace VoicePulse.API.Controllers;
 
@@ -21,5 +22,14 @@ public class ResultsController(IResultService resultService ) : ControllerBase
             ? Ok(result.Value) 
             : result.ToProblem();
     }
-      
+
+    [HttpGet("votes-per-day")]
+    public async Task<IActionResult> VotesPerDay([FromRoute] int pollId, CancellationToken cancellationToken)
+    {
+        var result = await _resultservice.GetVotesPerDayAsync(pollId, cancellationToken);
+
+        return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+    }
+
+
 }

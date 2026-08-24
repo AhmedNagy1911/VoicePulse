@@ -32,4 +32,24 @@ public class ResultService(IApplicationDbContext context) : IResultService
             ? Result.Success(pollVotes)
             : Result.Failure<PollVotesResponse>(PollErrors.PollNotFound);
     }
+
+    public async Task<Result<IEnumerable<VotesPerDayResponse>>> GetVotesPerDayAsync(int pollId, CancellationToken cancellationToken = default)
+    {
+        var pollIsExists = await _context.Polls
+            .AnyAsync(x => x.Id == pollId, cancellationToken: cancellationToken);
+
+        if (!pollIsExists)
+            return Result.Failure<IEnumerable<VotesPerDayResponse>>(PollErrors.PollNotFound);
+
+        var votesPerDay = await _context.Votes
+            .Where(x => x.PollId == pollId)
+            .GroupBy(x => new { Date = DateOnly.FromDateTime(x.SubmittedOn) })
+            .Select(g => new VotesPerDayResponse(
+                g.Key.Date,
+                g.Count()
+            ))
+            .ToListAsync(cancellationToken);
+
+        return Result.Success<IEnumerable<VotesPerDayResponse>>(votesPerDay);
+    }
 }
