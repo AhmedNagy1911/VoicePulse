@@ -7,7 +7,6 @@ using VoicePulse.Infrastructure;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
 
 // Register Application and Infrastructure services
@@ -16,7 +15,6 @@ builder.Services
         .AddApplication();
 
 // Add Swagger
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
