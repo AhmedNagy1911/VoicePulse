@@ -4,7 +4,6 @@ using VoicePulse.API.Exceptions;
 using VoicePulse.Application;
 using VoicePulse.Infrastructure;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -72,6 +71,13 @@ builder.Services.AddCors(options =>
 builder.Host.UseSerilog((context, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration)
 );
+
+// Add Redis as L2 cache
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration =
+        builder.Configuration.GetConnectionString("Redis");
+});
 
 // Add Hybrid Cache
 builder.Services.AddHybridCache();
