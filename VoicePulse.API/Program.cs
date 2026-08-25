@@ -73,6 +73,8 @@ builder.Host.UseSerilog((context, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration)
 );
 
+// Add Hybrid Cache
+builder.Services.AddHybridCache();
 
 var app = builder.Build();
 
