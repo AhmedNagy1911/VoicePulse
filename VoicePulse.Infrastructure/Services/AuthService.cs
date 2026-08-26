@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using VoicePulse.Application.Common.Errors;
 using VoicePulse.Application.Common.Results;
@@ -44,7 +45,7 @@ public class AuthService(UserManager<ApplicationUser> userManager , IJwtProvider
         await _usermanager.UpdateAsync(user);
 
         //Return New AuthResponse() 
-        var response = new AuthResponse(user.Id, user.Email, user.FristName, user.LastName, token, expiresIn, refreshToken, refreshTokenExpiration);
+        var response = new AuthResponse(user.Id, user.Email, user.UserName! , user.FristName, user.LastName, token, expiresIn, refreshToken, refreshTokenExpiration);
 
         return Result.Success(response);
     }
@@ -89,7 +90,7 @@ public class AuthService(UserManager<ApplicationUser> userManager , IJwtProvider
         await _usermanager.UpdateAsync(user);
 
         //Return New AuthResponse() 
-        var response = new AuthResponse(user.Id, user.Email, user.FristName, user.LastName, newToken, expiresIn, newRefreshToken, refreshTokenExpiration);
+        var response = new AuthResponse(user.Id, user.Email, user.UserName! , user.FristName, user.LastName, newToken, expiresIn, newRefreshToken, refreshTokenExpiration);
 
         return Result.Success(response);
     }
@@ -129,4 +130,12 @@ public class AuthService(UserManager<ApplicationUser> userManager , IJwtProvider
         return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
     }
 
+    public async Task<Result> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken = default)
+    {
+        var emailIsExists = await _usermanager.Users.AnyAsync(x => x.Email == request.Email , cancellationToken);
+
+        if (emailIsExists)
+            return Result.Failure(UserErrors.DuplicatedEmail);
+
+    }
 }

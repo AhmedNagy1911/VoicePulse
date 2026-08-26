@@ -1,4 +1,6 @@
-﻿namespace VoicePulse.Application.Common.Errors;
+﻿using Microsoft.AspNetCore.Http;
+
+namespace VoicePulse.Application.Common.Errors;
 
 public static class UserErrors
 {
@@ -10,5 +12,17 @@ public static class UserErrors
 
     public static readonly Error InvalidRefreshToken =
         new("User.InvalidRefreshToken", "Invalid refresh token",401);
+
+    public static readonly Error DuplicatedEmail =
+      new("User.DuplicatedEmail", "Another user with the same email is already exists", 409);
+
+    public static readonly Error EmailNotConfirmed =
+        new("User.EmailNotConfirmed", "Email is not confirmed", 401);
+
+    public static readonly Error InvalidCode =
+        new("User.InvalidCode", "Invalid code", 401);
+
+    public static readonly Error DuplicatedConfirmation =
+        new("User.DuplicatedConfirmation", "Email already confirmed", 400);
 
 }
