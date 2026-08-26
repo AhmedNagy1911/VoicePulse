@@ -1,3 +1,4 @@
+using Hangfire;
 using Microsoft.OpenApi;
 using Serilog;
 using VoicePulse.API.Exceptions;
@@ -95,7 +96,7 @@ if (app.Environment.IsDevelopment())
 app.UseSerilogRequestLogging();
 
 app.UseHttpsRedirection();
-
+app.UseHangfireDashboard("/jobs");
 app.UseCors();
 
 app.UseAuthentication();
