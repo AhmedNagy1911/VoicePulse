@@ -4,6 +4,6 @@
     string Email,
     string Password,
     string UserName,
-    string FirstName,
+    string FristName,
     string LastName
 );

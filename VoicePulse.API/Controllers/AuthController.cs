@@ -3,6 +3,7 @@ using Microsoft.Identity.Client.NativeInterop;
 using VoicePulse.API.Extensions;
 using VoicePulse.Application.Contracts.Authentication;
 using VoicePulse.Application.Interfaces;
+using VoicePulse.Infrastructure.Services;
 
 namespace VoicePulse.API.Controllers;
 
@@ -14,7 +15,7 @@ public class AuthController(IAuthService authService , ILogger<AuthController> l
     private readonly ILogger<AuthController> _logger = logger;
 
     [HttpPost("")]
-    public async Task<IActionResult> LoginAsync([FromBody] LoginRequest request, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> Login([FromBody] LoginRequest request, CancellationToken cancellationToken = default)
     {
         _logger.LogInformation("Logging with email: {email} and password: {password}", request.Email, request.Password);
 
@@ -26,7 +27,7 @@ public class AuthController(IAuthService authService , ILogger<AuthController> l
     }
 
     [HttpPost("refresh")]
-    public async Task<IActionResult> RefreshAsync([FromBody] RefreshTokenRequest request, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest request, CancellationToken cancellationToken = default)
     {
         var authResult = await _authservice.GetRefreshTokenAsync(request.Token, request.RefreshToken, cancellationToken);
 
@@ -36,12 +37,20 @@ public class AuthController(IAuthService authService , ILogger<AuthController> l
     }
 
     [HttpPost("revoke-refresh-token")]
-    public async Task<IActionResult> RevokeRefreshTokenAsync([FromBody] RefreshTokenRequest request, CancellationToken cancellationToken = default)
+    public async Task<IActionResult> RevokeRefreshToken([FromBody] RefreshTokenRequest request, CancellationToken cancellationToken = default)
     {
         var result = await _authservice.RevokeRefreshTokenAsync(request.Token, request.RefreshToken, cancellationToken);
 
         return result.IsSuccess
             ? Ok()
             : result.ToProblem();
+    }
+
+    [HttpPost("register")]
+    public async Task<IActionResult> Register([FromBody] RegisterRequest request, CancellationToken cancellationToken)
+    {
+        var result = await _authservice.RegisterAsync(request, cancellationToken);
+
+        return result.IsSuccess ? Ok() : result.ToProblem();
     }
 }

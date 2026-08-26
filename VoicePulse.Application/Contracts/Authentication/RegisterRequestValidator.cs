@@ -20,7 +20,7 @@ public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
             .NotEmpty()
             .Length(3, 256);
 
-        RuleFor(x => x.FirstName)
+        RuleFor(x => x.FristName)
             .NotEmpty()
             .Length(3, 100);
 
