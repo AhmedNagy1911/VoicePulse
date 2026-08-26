@@ -43,7 +43,8 @@ public static class DependencyInjection
 
         // Add Auth Config 
         services.AddIdentity<ApplicationUser, IdentityRole>()
-            .AddEntityFrameworkStores<ApplicationDbContext>();
+            .AddEntityFrameworkStores<ApplicationDbContext>()
+             .AddDefaultTokenProviders(); 
         
         //Add JWT Configurations
         services.AddAuthentication(options =>

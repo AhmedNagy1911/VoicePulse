@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Security.Cryptography;
 using System.Text;
 using VoicePulse.Application.Common.Errors;
@@ -13,12 +14,18 @@ using VoicePulse.Domain.Entities;
 
 namespace VoicePulse.Infrastructure.Services;
 
-public class AuthService(UserManager<ApplicationUser> userManager , IJwtProvider jwtProvider) : IAuthService
+public class AuthService(
+    UserManager<ApplicationUser> userManager,
+    IJwtProvider jwtProvider,
+      SignInManager<ApplicationUser> signInManager,
+      ILogger<AuthService> logger) : IAuthService
 {
     private readonly UserManager<ApplicationUser> _usermanager = userManager;
     private readonly IJwtProvider _jwtprovider = jwtProvider;
-
+    private readonly SignInManager<ApplicationUser> _signinmanager = signInManager;
+    private readonly ILogger<AuthService> _logger = logger;
     private readonly int _refreshTokenEpiryDays = 14;
+
     public async Task<Result<AuthResponse>> GetTokenAsync(string email, string password, CancellationToken cancellationToken = default)
     {
         //chech user?
@@ -27,31 +34,34 @@ public class AuthService(UserManager<ApplicationUser> userManager , IJwtProvider
         if (user is null)
             return Result.Failure<AuthResponse>(UserErrors.InvalidCredentials);
 
-        //chech password
-        var isValidPassword =await _usermanager.CheckPasswordAsync(user, password);
+        //chech password and confirm email
+        var result = await _signinmanager.PasswordSignInAsync(user, password, false, false);
 
-        if(!isValidPassword)
-            return Result.Failure<AuthResponse>(UserErrors.InvalidCredentials);
-
-        //generate JWT token
-        var (token, expiresIn) = _jwtprovider.GenerateToken(user);
-
-        // Add RefreshToken
-        var refreshToken = GenerateRefreshToken();
-        var refreshTokenExpiration = DateTime.UtcNow.AddDays(_refreshTokenEpiryDays);
-
-        user.RefreshTokens.Add(new RefreshToken
+        if(result.Succeeded)
         {
-            Token = refreshToken,
-            ExpiresOn = refreshTokenExpiration
-        });
+            //generate JWT token
+            var (token, expiresIn) = _jwtprovider.GenerateToken(user);
 
-        await _usermanager.UpdateAsync(user);
+            // Add RefreshToken
+            var refreshToken = GenerateRefreshToken();
+            var refreshTokenExpiration = DateTime.UtcNow.AddDays(_refreshTokenEpiryDays);
 
-        //Return New AuthResponse() 
-        var response = new AuthResponse(user.Id, user.Email, user.UserName! , user.FristName, user.LastName, token, expiresIn, refreshToken, refreshTokenExpiration);
+            user.RefreshTokens.Add(new RefreshToken
+            {
+                Token = refreshToken,
+                ExpiresOn = refreshTokenExpiration
+            });
 
-        return Result.Success(response);
+            await _usermanager.UpdateAsync(user);
+
+            //Return New AuthResponse() 
+            var response = new AuthResponse(user.Id, user.Email, user.UserName!, user.FristName, user.LastName, token, expiresIn, refreshToken, refreshTokenExpiration);
+
+            return Result.Success(response);
+        }
+
+        return Result.Failure<AuthResponse>(result.IsNotAllowed ? UserErrors.EmailNotConfirmed : UserErrors.InvalidCredentials);
+        
     }
 
 
@@ -148,11 +158,13 @@ public class AuthService(UserManager<ApplicationUser> userManager , IJwtProvider
 
         if (result.Succeeded)
         {
-            //var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-            //code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+            // Generate Verification Code
+            var code = await _usermanager.GenerateEmailConfirmationTokenAsync(user);
+            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
 
-            //_logger.LogInformation("Confirmation code: {code}", code);
+            _logger.LogInformation("Confirmation code: {code}", code);
 
+            // send email
             //await SendConfirmationEmail(user, code);
 
             return Result.Success();
