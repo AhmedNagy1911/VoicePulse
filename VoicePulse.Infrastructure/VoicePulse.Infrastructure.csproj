@@ -22,4 +22,8 @@
     <ProjectReference Include="..\VoicePulse.Domain\VoicePulse.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Templates\" />
+  </ItemGroup>
+
 </Project>

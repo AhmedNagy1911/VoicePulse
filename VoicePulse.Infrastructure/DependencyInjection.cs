@@ -39,6 +39,9 @@ public static class DependencyInjection
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
+        services.Configure<MailSettings>(config.GetSection(nameof(MailSettings)));
+
+
         var jwtSettings = config.GetSection(JwtOptions.SectionName).Get<JwtOptions>();
 
         // Add Auth Config 
