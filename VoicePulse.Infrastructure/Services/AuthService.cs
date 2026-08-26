@@ -203,5 +203,23 @@ public class AuthService(
 
         return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
     }
+
+    public async Task<Result> ResendConfirmationEmailAsync(ResendConfirmationEmailRequest request)
+    {
+        if (await _usermanager.FindByEmailAsync(request.Email) is not { } user)
+            return Result.Success();
+
+        if (user.EmailConfirmed)
+            return Result.Failure(UserErrors.DuplicatedConfirmation);
+
+        var code = await _usermanager.GenerateEmailConfirmationTokenAsync(user);
+        code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+
+        _logger.LogInformation("Confirmation code: {code}", code);
+
+        //await SendConfirmationEmail(user, code);
+
+        return Result.Success();
+    }
 }
 
