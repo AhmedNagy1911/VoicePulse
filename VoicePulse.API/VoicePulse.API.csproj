@@ -16,8 +16,15 @@
     <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
   </ItemGroup>
-
+	
+	<ItemGroup>
+		<Content Include="..\VoicePulse.Infrastructure\Templates\**\*.html"
+				 Link="Templates\%(RecursiveDir)%(Filename)%(Extension)"
+				 CopyToOutputDirectory="PreserveNewest"
+				 CopyToPublishDirectory="PreserveNewest" />
+	</ItemGroup>
   <ItemGroup>
+	  
     <ProjectReference Include="..\VoicePulse.Application\VoicePulse.Application.csproj" />
     <ProjectReference Include="..\VoicePulse.Infrastructure\VoicePulse.Infrastructure.csproj" />
   </ItemGroup>

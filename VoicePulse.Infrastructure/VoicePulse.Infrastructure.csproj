@@ -18,13 +18,14 @@
     </PackageReference>
   </ItemGroup>
 
+	<ItemGroup>
+		<Content Include="Templates\**\*.html" Link="Templates\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+	</ItemGroup>
+
+	
   <ItemGroup>
     <ProjectReference Include="..\VoicePulse.Application\VoicePulse.Application.csproj" />
     <ProjectReference Include="..\VoicePulse.Domain\VoicePulse.Domain.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Templates\" />
   </ItemGroup>
 
 </Project>

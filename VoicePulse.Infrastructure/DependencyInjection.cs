@@ -42,7 +42,7 @@ public static class DependencyInjection
             .ValidateOnStart();
 
         services.Configure<MailSettings>(config.GetSection(nameof(MailSettings)));
-
+        services.AddHttpContextAccessor();
 
         var jwtSettings = config.GetSection(JwtOptions.SectionName).Get<JwtOptions>();
 

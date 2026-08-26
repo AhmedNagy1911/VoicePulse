@@ -1,6 +1,7 @@
 using Mapster;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -11,6 +12,7 @@ using VoicePulse.Application.Common.Results;
 using VoicePulse.Application.Contracts.Authentication;
 using VoicePulse.Application.Interfaces;
 using VoicePulse.Domain.Entities;
+using VoicePulse.Infrastructure.Helpers;
 
 namespace VoicePulse.Infrastructure.Services;
 
@@ -18,12 +20,16 @@ public class AuthService(
     UserManager<ApplicationUser> userManager,
     IJwtProvider jwtProvider,
       SignInManager<ApplicationUser> signInManager,
-      ILogger<AuthService> logger) : IAuthService
+      ILogger<AuthService> logger,
+      IEmailSender emailSender,
+      IHttpContextAccessor httpContextAccessor) : IAuthService
 {
     private readonly UserManager<ApplicationUser> _usermanager = userManager;
     private readonly IJwtProvider _jwtprovider = jwtProvider;
     private readonly SignInManager<ApplicationUser> _signinmanager = signInManager;
     private readonly ILogger<AuthService> _logger = logger;
+    private readonly IEmailSender _emailsender = emailSender;
+    private readonly IHttpContextAccessor _httpcontextaccessor = httpContextAccessor;
     private readonly int _refreshTokenEpiryDays = 14;
 
     public async Task<Result<AuthResponse>> GetTokenAsync(string email, string password, CancellationToken cancellationToken = default)
@@ -165,7 +171,7 @@ public class AuthService(
             _logger.LogInformation("Confirmation code: {code}", code);
 
             // send email
-            //await SendConfirmationEmail(user, code);
+            await SendConfirmationEmail(user, code);
 
             return Result.Success();
         }
@@ -217,9 +223,24 @@ public class AuthService(
 
         _logger.LogInformation("Confirmation code: {code}", code);
 
-        //await SendConfirmationEmail(user, code);
+        await SendConfirmationEmail(user, code);
 
         return Result.Success();
+    }
+
+    private async Task SendConfirmationEmail(ApplicationUser user, string code)
+    {
+        var origin = _httpcontextaccessor.HttpContext?.Request.Headers.Origin;
+
+        var emailBody = EmailBodyBuilder.GenerateEmailBody("EmailConfirmation",
+            templateModel: new Dictionary<string, string>
+            {
+                { "{{name}}", user.FristName },
+                    { "{{action_url}}", $"{origin}/auth/emailConfirmation?userId={user.Id}&code={code}" }
+            }
+        );
+
+        await _emailsender.SendEmailAsync(user.Email!, "✅  Voice Pulse: Email Confirmation", emailBody);
     }
 }
 
