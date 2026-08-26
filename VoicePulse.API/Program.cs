@@ -1,4 +1,5 @@
 using Hangfire;
+using HangfireBasicAuthenticationFilter;
 using Microsoft.OpenApi;
 using Serilog;
 using VoicePulse.API.Exceptions;
@@ -96,7 +97,21 @@ if (app.Environment.IsDevelopment())
 app.UseSerilogRequestLogging();
 
 app.UseHttpsRedirection();
-app.UseHangfireDashboard("/jobs");
+
+app.UseHangfireDashboard("/jobs", new DashboardOptions
+{
+    Authorization =
+    [
+        new HangfireCustomBasicAuthenticationFilter
+        {
+            User = app.Configuration.GetValue<string>("HangfireSettings:Username"),
+            Pass = app.Configuration.GetValue<string>("HangfireSettings:Password")
+        }
+    ],
+    DashboardTitle = "Voice Pulse Dashboard",
+    //IsReadOnlyFunc = (DashboardContext conext) => true
+});
+
 app.UseCors();
 
 app.UseAuthentication();
