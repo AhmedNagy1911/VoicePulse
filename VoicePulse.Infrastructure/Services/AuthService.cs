@@ -1,3 +1,4 @@
+using Hangfire;
 using Mapster;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -240,7 +241,7 @@ public class AuthService(
             }
         );
 
-        await _emailsender.SendEmailAsync(user.Email!, "✅  Voice Pulse: Email Confirmation", emailBody);
+        BackgroundJob.Enqueue(() => _emailsender.SendEmailAsync(user.Email!, "✅  Voice Pulse: Email Confirmation", emailBody));
     }
 }
 
