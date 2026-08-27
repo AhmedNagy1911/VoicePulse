@@ -35,6 +35,7 @@ public static class DependencyInjection
         services.AddScoped<IJwtProvider, JwtProvider>();
         services.AddScoped<IEmailSender, EmailService>();
         services.AddScoped<INotificationService, NotificationService>();
+        services.AddScoped<IUserService, UserService>();
 
         //Add Options Pattern 
         ////services.Configure<JwtOptions>(config.GetSection(JwtOptions.SectionName));
