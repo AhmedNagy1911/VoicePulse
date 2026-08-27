@@ -1,4 +1,5 @@
-﻿using Mapster;
+﻿using Hangfire;
+using Mapster;
 using Microsoft.EntityFrameworkCore;
 using VoicePulse.Application.Common.Errors;
 using VoicePulse.Application.Common.Interfaces;
@@ -9,9 +10,10 @@ using VoicePulse.Domain.Entities;
 
 namespace VoicePulse.Application.Services;
 
-public class PollService(IApplicationDbContext context) : IPollService
+public class PollService(IApplicationDbContext context , INotificationService notificationService) : IPollService
 {
     private readonly IApplicationDbContext _context = context;
+    private readonly INotificationService _notificationservice = notificationService;
 
     public async Task<IEnumerable<PollResponse>> GetAllAsync(CancellationToken cancellationToken = default) =>
         await _context.Polls
@@ -104,6 +106,9 @@ public class PollService(IApplicationDbContext context) : IPollService
         poll.IsPublished = !poll.IsPublished;
 
         await _context.SaveChangesAsync(cancellationToken);
+
+        if (poll.IsPublished && poll.StartsAt == DateOnly.FromDateTime(DateTime.UtcNow))
+            BackgroundJob.Enqueue(() => _notificationservice.SendNewPollsNotification(poll.Id));
 
         return Result.Success();
     }

@@ -1,4 +1,5 @@
 using Hangfire;
+using Hangfire.Dashboard;
 using HangfireBasicAuthenticationFilter;
 using Microsoft.OpenApi;
 using Serilog;

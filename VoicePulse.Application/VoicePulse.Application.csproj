@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
+    <PackageReference Include="Hangfire.Core" Version="1.8.24" />
     <PackageReference Include="Mapster" Version="10.1.0-pre02" />
     <PackageReference Include="Mapster.DependencyInjection" Version="10.1.0-pre02" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.11" />
