@@ -4,6 +4,7 @@ using Microsoft.OpenApi;
 using Serilog;
 using VoicePulse.API.Exceptions;
 using VoicePulse.Application;
+using VoicePulse.Application.Interfaces;
 using VoicePulse.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -98,6 +99,7 @@ app.UseSerilogRequestLogging();
 
 app.UseHttpsRedirection();
 
+// Add Hangfire Configurations  And Protect Hangfire Dashboard
 app.UseHangfireDashboard("/jobs", new DashboardOptions
 {
     Authorization =
@@ -111,6 +113,13 @@ app.UseHangfireDashboard("/jobs", new DashboardOptions
     DashboardTitle = "Voice Pulse Dashboard",
     //IsReadOnlyFunc = (DashboardContext conext) => true
 });
+
+// Configure Recurring Jobs
+var scopeFactory = app.Services.GetRequiredService<IServiceScopeFactory>();
+using var scope = scopeFactory.CreateScope();
+var notificationService = scope.ServiceProvider.GetRequiredService<INotificationService>();
+
+RecurringJob.AddOrUpdate("SendNewPollsNotification", () => notificationService.SendNewPollsNotification(null), Cron.Daily);
 
 app.UseCors();
 
