@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VoicePulse.API.Extensions;
+using VoicePulse.Application.Contracts.Users;
 using VoicePulse.Application.Interfaces;
+using VoicePulse.Infrastructure.Services;
 
 namespace VoicePulse.API.Controllers;
 
@@ -20,5 +22,11 @@ public class AccountController(IUserService userService) : ControllerBase
         return Ok(result.Value);
     }
 
+    [HttpPut("info")]
+    public async Task<IActionResult> Info([FromBody] UpdateProfileRequest request)
+    {
+        await _userservice.UpdateProfileAsync(User.GetUserId()!, request);
 
+        return NoContent();
+    }
 }
