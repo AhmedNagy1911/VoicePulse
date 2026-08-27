@@ -146,11 +146,6 @@ public class AuthService(
 
     }
 
-    private static string GenerateRefreshToken()
-    {
-        return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
-    }
-
     public async Task<Result> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken = default)
     {
         var emailIsExists = await _usermanager.Users.AnyAsync(x => x.Email == request.Email , cancellationToken);
@@ -229,6 +224,30 @@ public class AuthService(
         return Result.Success();
     }
 
+    public async Task<Result> SendResetPasswordCodeAsync(string email)
+    {
+        if (await _usermanager.FindByEmailAsync(email) is not { } user)
+            return Result.Success();
+
+        if (!user.EmailConfirmed)
+            return Result.Failure(UserErrors.EmailNotConfirmed);
+
+        var code = await _usermanager.GeneratePasswordResetTokenAsync(user);
+        code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+
+        _logger.LogInformation("Reset code: {code}", code);
+
+        await SendResetPasswordEmail(user, code);
+
+        return Result.Success();
+    }
+
+
+    private static string GenerateRefreshToken()
+    {
+        return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+    }
+
     private async Task SendConfirmationEmail(ApplicationUser user, string code)
     {
         var origin = _httpcontextaccessor.HttpContext?.Request.Headers.Origin;
@@ -242,6 +261,23 @@ public class AuthService(
         );
 
         BackgroundJob.Enqueue(() => _emailsender.SendEmailAsync(user.Email!, "✅  Voice Pulse: Email Confirmation", emailBody));
+    }
+
+    private async Task SendResetPasswordEmail(ApplicationUser user, string code)
+    {
+        var origin = _httpcontextaccessor.HttpContext?.Request.Headers.Origin;
+
+        var emailBody = EmailBodyBuilder.GenerateEmailBody("ForgetPassword",
+            templateModel: new Dictionary<string, string>
+            {
+                { "{{name}}", user.FristName },
+                { "{{action_url}}", $"{origin}/auth/forgetPassword?email={user.Email}&code={code}" }
+            }
+        );
+
+        BackgroundJob.Enqueue(() => _emailsender.SendEmailAsync(user.Email!, "✅ Voice Pulse: Change Password", emailBody));
+
+        await Task.CompletedTask;
     }
 }
 
