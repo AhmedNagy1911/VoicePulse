@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VoicePulse.Infrastructure.Persistence;
 
@@ -11,9 +12,11 @@ using VoicePulse.Infrastructure.Persistence;
 namespace VoicePulse.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260827232027_UpdateRolesTable")]
+    partial class UpdateRolesTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -152,7 +155,7 @@ namespace VoicePulse.Infrastructure.Persistence.Migrations
                     b.HasIndex("QuestionId", "Content")
                         .IsUnique();
 
-                    b.ToTable("Answers", (string)null);
+                    b.ToTable("Answers");
                 });
 
             modelBuilder.Entity("VoicePulse.Domain.Entities.ApplicationRole", b =>
@@ -312,7 +315,7 @@ namespace VoicePulse.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("UpdatedById");
 
-                    b.ToTable("Polls", (string)null);
+                    b.ToTable("Polls");
                 });
 
             modelBuilder.Entity("VoicePulse.Domain.Entities.Question", b =>
@@ -356,7 +359,7 @@ namespace VoicePulse.Infrastructure.Persistence.Migrations
                     b.HasIndex("PollId", "Content")
                         .IsUnique();
 
-                    b.ToTable("Questions", (string)null);
+                    b.ToTable("Questions");
                 });
 
             modelBuilder.Entity("VoicePulse.Domain.Entities.Vote", b =>
@@ -384,7 +387,7 @@ namespace VoicePulse.Infrastructure.Persistence.Migrations
                     b.HasIndex("PollId", "UserId")
                         .IsUnique();
 
-                    b.ToTable("Votes", (string)null);
+                    b.ToTable("Votes");
                 });
 
             modelBuilder.Entity("VoicePulse.Domain.Entities.VoteAnswer", b =>
@@ -413,7 +416,7 @@ namespace VoicePulse.Infrastructure.Persistence.Migrations
                     b.HasIndex("VoteId", "QuestionId")
                         .IsUnique();
 
-                    b.ToTable("VoteAnswers", (string)null);
+                    b.ToTable("VoteAnswers");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

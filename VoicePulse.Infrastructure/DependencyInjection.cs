@@ -50,7 +50,7 @@ public static class DependencyInjection
         var jwtSettings = config.GetSection(JwtOptions.SectionName).Get<JwtOptions>();
 
         // Add Auth Config 
-        services.AddIdentity<ApplicationUser, IdentityRole>()
+        services.AddIdentity<ApplicationUser, ApplicationRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
              .AddDefaultTokenProviders(); 
         
