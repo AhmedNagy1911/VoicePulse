@@ -91,6 +91,42 @@ public class UserService(UserManager<ApplicationUser> userManager, ApplicationDb
         return Result.Failure<UserResponse>(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
     }
 
+
+    public async Task<Result> UpdateAsync(string id, UpdateUserRequest request, CancellationToken cancellationToken = default)
+    {
+        var emailIsExists = await _usermanager.Users.AnyAsync(x => x.Email == request.Email && x.Id != id, cancellationToken);
+
+        if (emailIsExists)
+            return Result.Failure(UserErrors.DuplicatedEmail);
+
+        var allowedRoles = await _roleservice.GetAllAsync(cancellationToken: cancellationToken);
+
+        if (request.Roles.Except(allowedRoles.Select(x => x.Name)).Any())
+            return Result.Failure(UserErrors.InvalidRoles);
+
+        if (await _usermanager.FindByIdAsync(id) is not { } user)
+            return Result.Failure(UserErrors.UserNotFound);
+
+        user = request.Adapt(user);
+
+        var result = await _usermanager.UpdateAsync(user);
+
+        if (result.Succeeded)
+        {
+            await _context.UserRoles
+                .Where(x => x.UserId == id)
+                .ExecuteDeleteAsync(cancellationToken);
+
+            await _usermanager.AddToRolesAsync(user, request.Roles);
+
+            return Result.Success();
+        }
+
+        var error = result.Errors.First();
+
+        return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
+    }
+
     public async Task<Result<UserProfileResponse>> GetProfileAsync(string userId)
     {
         var user = await _usermanager.Users
