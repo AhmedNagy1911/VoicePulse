@@ -4,6 +4,7 @@ using VoicePulse.API.Extensions;
 using VoicePulse.API.Filters;
 using VoicePulse.Application.Common.Consts;
 using VoicePulse.Application.Common.Errors;
+using VoicePulse.Application.Common.Models;
 using VoicePulse.Application.Contracts.Questions;
 using VoicePulse.Application.Interfaces;
 using VoicePulse.Application.Services;
@@ -18,9 +19,9 @@ public class QuestionsController(IQuestionService questionService) : ControllerB
 
     [HttpGet("")]
     [HasPermission(Permissions.GetQuestions)]
-    public async Task<IActionResult> GetAll([FromRoute] int pollId, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAll([FromRoute] int pollId, [FromQuery] RequestFilters filters, CancellationToken cancellationToken)
     {
-        var result = await _questionservice.GetAllAsync(pollId, cancellationToken);
+        var result = await _questionservice.GetAllAsync(pollId, filters, cancellationToken);
 
         return result.IsSuccess 
             ? Ok(result.Value) 
