@@ -2,7 +2,7 @@
 
 public record UserResponse(
     string Id,
-    string FirstName,
+    string FristName,
     string LastName,
     string Email,
     string UserName,

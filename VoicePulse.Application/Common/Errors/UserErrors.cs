@@ -29,5 +29,10 @@ public static class UserErrors
 
     public static readonly Error DuplicatedConfirmation =
         new("User.DuplicatedConfirmation", "Email already confirmed", 400);
+    public static readonly Error UserNotFound =
+   new("User.UserNotFound", "User is not found", StatusCodes.Status404NotFound);
+
+    public static readonly Error InvalidRoles =
+        new("Role.InvalidRoles", "Invalid roles", StatusCodes.Status400BadRequest);
 
 }

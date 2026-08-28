@@ -26,27 +26,40 @@ public class UserService(UserManager<ApplicationUser> userManager, ApplicationDb
                where !roles.Any(x => x.Name == DefaultRoles.Member)
                select new
                {
-                   u.Id,
-                   u.FristName,
-                   u.LastName,
-                   u.Email,
-                   u.UserName,
-                   u.IsDisabled,
-                   Roles = roles.Select(x => x.Name!).ToList()
+                       u.Id,
+                       u.FristName,
+                       u.LastName,
+                       u.Email,
+                       u.UserName,
+                       u.IsDisabled,
+                       Roles = roles.Select(x => x.Name!).ToList()
                }
                 )
                 .GroupBy(u => new { u.Id, u.FristName, u.LastName, u.Email,u.UserName, u.IsDisabled })
                 .Select(u => new UserResponse
                 (
-                    u.Key.Id,
-                    u.Key.FristName,
-                    u.Key.LastName,
-                    u.Key.Email,
-                    u.Key.UserName,
-                    u.Key.IsDisabled,
-                    u.SelectMany(x => x.Roles)
+                        u.Key.Id,
+                        u.Key.FristName,
+                        u.Key.LastName,
+                        u.Key.Email,
+                        u.Key.UserName,
+                        u.Key.IsDisabled,
+                        u.SelectMany(x => x.Roles)
                 ))
                .ToListAsync(cancellationToken);
+
+    public async Task<Result<UserResponse>> GetAsync(string id)
+    {
+        if (await _usermanager.FindByIdAsync(id) is not { } user)
+            return Result.Failure<UserResponse>(UserErrors.UserNotFound);
+
+        var userRoles = await _usermanager.GetRolesAsync(user);
+
+        var response = (user, userRoles).Adapt<UserResponse>();
+
+        return Result.Success(response);
+    }
+
 
     public async Task<Result<UserProfileResponse>> GetProfileAsync(string userId)
     {
