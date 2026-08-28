@@ -2,17 +2,51 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using VoicePulse.Application.Common.Consts;
 using VoicePulse.Application.Common.Errors;
 using VoicePulse.Application.Common.Results;
 using VoicePulse.Application.Contracts.Users;
 using VoicePulse.Application.Interfaces;
 using VoicePulse.Domain.Entities;
+using VoicePulse.Infrastructure.Persistence;
 
 namespace VoicePulse.Infrastructure.Services;
 
-public class UserService(UserManager<ApplicationUser> userManager) : IUserService
+public class UserService(UserManager<ApplicationUser> userManager, ApplicationDbContext context) : IUserService
 {
     private readonly UserManager<ApplicationUser> _usermanager = userManager;
+    private readonly ApplicationDbContext _context = context;
+
+    public async Task<IEnumerable<UserResponse>> GetAllAsync(CancellationToken cancellationToken = default) =>
+        await (from u in _context.Users
+               join ur in _context.UserRoles
+               on u.Id equals ur.UserId
+               join r in _context.Roles
+               on ur.RoleId equals r.Id into roles
+               where !roles.Any(x => x.Name == DefaultRoles.Member)
+               select new
+               {
+                   u.Id,
+                   u.FristName,
+                   u.LastName,
+                   u.Email,
+                   u.UserName,
+                   u.IsDisabled,
+                   Roles = roles.Select(x => x.Name!).ToList()
+               }
+                )
+                .GroupBy(u => new { u.Id, u.FristName, u.LastName, u.Email,u.UserName, u.IsDisabled })
+                .Select(u => new UserResponse
+                (
+                    u.Key.Id,
+                    u.Key.FristName,
+                    u.Key.LastName,
+                    u.Key.Email,
+                    u.Key.UserName,
+                    u.Key.IsDisabled,
+                    u.SelectMany(x => x.Roles)
+                ))
+               .ToListAsync(cancellationToken);
 
     public async Task<Result<UserProfileResponse>> GetProfileAsync(string userId)
     {
