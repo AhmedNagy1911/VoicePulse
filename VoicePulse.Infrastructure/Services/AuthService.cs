@@ -45,6 +45,9 @@ public class AuthService(
         if (user is null)
             return Result.Failure<AuthResponse>(UserErrors.InvalidCredentials);
 
+        if (user.IsDisabled)
+            return Result.Failure<AuthResponse>(UserErrors.DisabledUser);
+
         //chech password and confirm email
         var result = await _signinmanager.PasswordSignInAsync(user, password, false, false);
 
@@ -93,6 +96,8 @@ public class AuthService(
         if (user is null)
             return Result.Failure<AuthResponse>(UserErrors.InvalidJwtToken);
 
+        if (user.IsDisabled)
+            return Result.Failure<AuthResponse>(UserErrors.DisabledUser);
         //chech token?
         var userRefreshToken = user.RefreshTokens.SingleOrDefault(x => x.Token == refreshToken && x.IsActive);
 
