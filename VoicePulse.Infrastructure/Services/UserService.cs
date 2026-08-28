@@ -127,6 +127,24 @@ public class UserService(UserManager<ApplicationUser> userManager, ApplicationDb
         return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
     }
 
+    public async Task<Result> ToggleStatus(string id)
+    {
+        if (await _usermanager.FindByIdAsync(id) is not { } user)
+            return Result.Failure(UserErrors.UserNotFound);
+
+        user.IsDisabled = !user.IsDisabled;
+
+        var result = await _usermanager.UpdateAsync(user);
+
+        if (result.Succeeded)
+            return Result.Success();
+
+        var error = result.Errors.First();
+
+        return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
+    }
+
+
     public async Task<Result<UserProfileResponse>> GetProfileAsync(string userId)
     {
         var user = await _usermanager.Users
