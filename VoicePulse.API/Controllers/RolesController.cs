@@ -2,6 +2,7 @@
 using VoicePulse.API.Extensions;
 using VoicePulse.API.Filters;
 using VoicePulse.Application.Common.Consts;
+using VoicePulse.Application.Contracts.Roles;
 using VoicePulse.Application.Interfaces;
 
 namespace VoicePulse.API.Controllers;
@@ -28,6 +29,15 @@ public class RolesController(IRoleService roleService) : ControllerBase
         var result = await _roleService.GetAsync(id);
 
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+    }
+
+    [HttpPost("")]
+    [HasPermission(Permissions.AddRoles)]
+    public async Task<IActionResult> Add([FromBody] RoleRequest request)
+    {
+        var result = await _roleService.AddAsync(request);
+
+        return result.IsSuccess ? CreatedAtAction(nameof(Get), new { result.Value.Id }, result.Value) : result.ToProblem();
     }
 
 
