@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using VoicePulse.API.Extensions;
 using VoicePulse.API.Filters;
 using VoicePulse.Application.Common.Consts;
 using VoicePulse.Application.Interfaces;
@@ -18,6 +19,15 @@ public class RolesController(IRoleService roleService) : ControllerBase
         var roles = await _roleService.GetAllAsync(includeDisabled, cancellationToken);
 
         return Ok(roles);
+    }
+
+    [HttpGet("{id}")]
+    [HasPermission(Permissions.GetRoles)]
+    public async Task<IActionResult> Get([FromRoute] string id)
+    {
+        var result = await _roleService.GetAsync(id);
+
+        return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
 
 

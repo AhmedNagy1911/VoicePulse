@@ -1,6 +1,8 @@
 ﻿using Mapster;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using VoicePulse.Application.Common.Errors;
+using VoicePulse.Application.Common.Results;
 using VoicePulse.Application.Contracts.Roles;
 using VoicePulse.Application.Interfaces;
 using VoicePulse.Domain.Entities;
@@ -19,4 +21,15 @@ public class RoleService(RoleManager<ApplicationRole> roleManager, ApplicationDb
             .ProjectToType<RoleResponse>()
             .ToListAsync(cancellationToken);
 
+    public async Task<Result<RoleDetailResponse>> GetAsync(string id)
+    {
+        if (await _roleManager.FindByIdAsync(id) is not { } role)
+            return Result.Failure<RoleDetailResponse>(RoleErrors.RoleNotFound);
+
+        var permissions = await _roleManager.GetClaimsAsync(role);
+
+        var response = new RoleDetailResponse(role.Id, role.Name!, role.IsDeleted, permissions.Select(x => x.Value));
+
+        return Result.Success(response);
+    }
 }
