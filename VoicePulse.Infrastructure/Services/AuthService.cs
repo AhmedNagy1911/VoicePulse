@@ -15,6 +15,7 @@ using VoicePulse.Application.Contracts.Authentication;
 using VoicePulse.Application.Interfaces;
 using VoicePulse.Domain.Entities;
 using VoicePulse.Infrastructure.Helpers;
+using VoicePulse.Infrastructure.Persistence;
 
 namespace VoicePulse.Infrastructure.Services;
 
@@ -24,7 +25,8 @@ public class AuthService(
       SignInManager<ApplicationUser> signInManager,
       ILogger<AuthService> logger,
       IEmailSender emailSender,
-      IHttpContextAccessor httpContextAccessor) : IAuthService
+      IHttpContextAccessor httpContextAccessor,
+      ApplicationDbContext context) : IAuthService
 {
     private readonly UserManager<ApplicationUser> _usermanager = userManager;
     private readonly IJwtProvider _jwtprovider = jwtProvider;
@@ -32,6 +34,7 @@ public class AuthService(
     private readonly ILogger<AuthService> _logger = logger;
     private readonly IEmailSender _emailsender = emailSender;
     private readonly IHttpContextAccessor _httpcontextaccessor = httpContextAccessor;
+    private readonly ApplicationDbContext _context = context;
     private readonly int _refreshTokenEpiryDays = 14;
 
     public async Task<Result<AuthResponse>> GetTokenAsync(string email, string password, CancellationToken cancellationToken = default)
@@ -47,8 +50,11 @@ public class AuthService(
 
         if(result.Succeeded)
         {
+
+            var (userRoles, userPermissions) = await GetUserRolesAndPermissions(user, cancellationToken);
+
             //generate JWT token
-            var (token, expiresIn) = _jwtprovider.GenerateToken(user);
+            var (token, expiresIn) = _jwtprovider.GenerateToken(user, userRoles, userPermissions);
 
             // Add RefreshToken
             var refreshToken = GenerateRefreshToken();
@@ -96,8 +102,10 @@ public class AuthService(
         //remove old token
         userRefreshToken.RevokedOn = DateTime.UtcNow;
 
+        var (userRoles, userPermissions) = await GetUserRolesAndPermissions(user, cancellationToken);
+
         //generate JWT NewToken
-        var (newToken, expiresIn) = _jwtprovider.GenerateToken(user);
+        var (newToken, expiresIn) = _jwtprovider.GenerateToken(user, userRoles, userPermissions);
 
         // Add NewRefreshToken
         var newRefreshToken = GenerateRefreshToken();
@@ -309,5 +317,32 @@ public class AuthService(
 
         await Task.CompletedTask;
     }
+
+    private async Task<(IEnumerable<string> roles, IEnumerable<string> permissions)> GetUserRolesAndPermissions(ApplicationUser user, CancellationToken cancellationToken)
+    {
+        var userRoles = await _usermanager.GetRolesAsync(user);
+
+        //var userPermissions = await _context.Roles
+        //    .Join(_context.RoleClaims,
+        //        role => role.Id,
+        //        claim => claim.RoleId,
+        //        (role, claim) => new { role, claim }
+        //    )
+        //    .Where(x => userRoles.Contains(x.role.Name!))
+        //    .Select(x => x.claim.ClaimValue!)
+        //    .Distinct()
+        //    .ToListAsync(cancellationToken);
+
+        var userPermissions = await (from r in _context.Roles
+                                     join p in _context.RoleClaims
+                                     on r.Id equals p.RoleId
+                                     where userRoles.Contains(r.Name!)
+                                     select p.ClaimValue!)
+                                     .Distinct()
+                                     .ToListAsync(cancellationToken);
+
+        return (userRoles, userPermissions);
+    }
+
 }
 
