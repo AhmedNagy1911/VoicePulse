@@ -13,7 +13,7 @@ namespace VoicePulse.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-[Authorize]
+
 public class PollsController(IPollService pollService) : ControllerBase
 {
     private readonly IPollService _pollservice = pollService;
@@ -33,6 +33,7 @@ public class PollsController(IPollService pollService) : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [HasPermission(Permissions.GetPolls)]
     public async Task<IActionResult> Get([FromRoute] int id, CancellationToken cancellationToken = default)
     {
         var result = await _pollservice.GetAsync(id, cancellationToken);
@@ -42,8 +43,8 @@ public class PollsController(IPollService pollService) : ControllerBase
             :result.ToProblem();
     }
 
-
     [HttpPost("")]
+    [HasPermission(Permissions.AddPolls)]
     public async Task<IActionResult> Add([FromBody] PollRequest request, CancellationToken cancellationToken = default)
     {
         var result = await _pollservice.AddAsync(request, cancellationToken);
@@ -54,6 +55,7 @@ public class PollsController(IPollService pollService) : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [HasPermission(Permissions.UpdatePolls)]
     public async Task<IActionResult> Update([FromRoute] int id, [FromBody] PollRequest request, CancellationToken cancellationToken = default)
     {
         var result = await _pollservice.UpdateAsync(id, request, cancellationToken);
@@ -64,6 +66,7 @@ public class PollsController(IPollService pollService) : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [HasPermission(Permissions.DeletePolls)]
     public async Task<IActionResult> Delete([FromRoute] int id, CancellationToken cancellationToken = default)
     {
         var result = await _pollservice.DeleteAsync(id, cancellationToken);
@@ -74,6 +77,7 @@ public class PollsController(IPollService pollService) : ControllerBase
     }
 
     [HttpPut("{id}/togglePublish")]
+    [HasPermission(Permissions.UpdatePolls)]
     public async Task<IActionResult> TogglePublish([FromRoute] int id, CancellationToken cancellationToken = default)
     {
         var result = await _pollservice.TogglePublishStatusAsync(id, cancellationToken);

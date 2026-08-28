@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VoicePulse.API.Extensions;
+using VoicePulse.API.Filters;
+using VoicePulse.Application.Common.Consts;
 using VoicePulse.Application.Interfaces;
 using VoicePulse.Application.Services;
 
@@ -8,7 +10,7 @@ namespace VoicePulse.API.Controllers;
 
 [Route("api/polls/{pollId}/[controller]")]
 [ApiController]
-[Authorize]
+[HasPermission(Permissions.Results)]
 public class ResultsController(IResultService resultService ) : ControllerBase
 {
     private readonly IResultService _resultservice = resultService;
