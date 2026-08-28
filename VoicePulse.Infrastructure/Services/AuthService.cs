@@ -322,17 +322,6 @@ public class AuthService(
     {
         var userRoles = await _usermanager.GetRolesAsync(user);
 
-        //var userPermissions = await _context.Roles
-        //    .Join(_context.RoleClaims,
-        //        role => role.Id,
-        //        claim => claim.RoleId,
-        //        (role, claim) => new { role, claim }
-        //    )
-        //    .Where(x => userRoles.Contains(x.role.Name!))
-        //    .Select(x => x.claim.ClaimValue!)
-        //    .Distinct()
-        //    .ToListAsync(cancellationToken);
-
         var userPermissions = await (from r in _context.Roles
                                      join p in _context.RoleClaims
                                      on r.Id equals p.RoleId
