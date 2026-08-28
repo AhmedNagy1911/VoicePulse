@@ -49,7 +49,7 @@ public class AuthService(
             return Result.Failure<AuthResponse>(UserErrors.DisabledUser);
 
         //chech password and confirm email
-        var result = await _signinmanager.PasswordSignInAsync(user, password, false, false);
+        var result = await _signinmanager.PasswordSignInAsync(user, password, false, true);
 
         if(result.Succeeded)
         {
@@ -77,8 +77,14 @@ public class AuthService(
             return Result.Success(response);
         }
 
-        return Result.Failure<AuthResponse>(result.IsNotAllowed ? UserErrors.EmailNotConfirmed : UserErrors.InvalidCredentials);
-        
+        var error = result.IsNotAllowed
+            ? UserErrors.EmailNotConfirmed
+            : result.IsLockedOut
+            ? UserErrors.LockedUser
+            : UserErrors.InvalidCredentials;
+
+        return Result.Failure<AuthResponse>(error);
+
     }
 
 
@@ -98,6 +104,10 @@ public class AuthService(
 
         if (user.IsDisabled)
             return Result.Failure<AuthResponse>(UserErrors.DisabledUser);
+
+        if (user.LockoutEnd > DateTime.UtcNow)
+            return Result.Failure<AuthResponse>(UserErrors.LockedUser);
+
         //chech token?
         var userRefreshToken = user.RefreshTokens.SingleOrDefault(x => x.Token == refreshToken && x.IsActive);
 
