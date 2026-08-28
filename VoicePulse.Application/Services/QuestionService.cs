@@ -9,6 +9,7 @@ using VoicePulse.Application.Common.Results;
 using VoicePulse.Application.Contracts.Questions;
 using VoicePulse.Application.Interfaces;
 using VoicePulse.Domain.Entities;
+using System.Linq.Dynamic.Core;
 
 namespace VoicePulse.Application.Services;
 
@@ -34,10 +35,10 @@ public class QuestionService(IApplicationDbContext context , HybridCache hybridC
             query = query.Where(x => x.Content.Contains(filters.SearchValue));
         }
 
-        //if (!string.IsNullOrEmpty(filters.SortColumn))
-        //{
-        //    query = query.OrderBy($"{filters.SortColumn} {filters.SortDirection}");
-        //}
+        if (!string.IsNullOrEmpty(filters.SortColumn))
+        {
+            query = query.OrderBy($"{filters.SortColumn} {filters.SortDirection}");
+        }
 
         var source = query
                         .Include(x => x.Answers)

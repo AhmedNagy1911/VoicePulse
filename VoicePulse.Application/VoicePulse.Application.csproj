@@ -21,6 +21,8 @@
     <PackageReference Include="SharpGrip.FluentValidation.AutoValidation.Mvc" Version="2.0.0" />
 
 	  <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+
+	  <PackageReference Include="System.Linq.Dynamic.Core" Version="1.7.3" />
   </ItemGroup>
 
   <ItemGroup>
