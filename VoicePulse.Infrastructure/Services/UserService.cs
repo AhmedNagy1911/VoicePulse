@@ -144,6 +144,20 @@ public class UserService(UserManager<ApplicationUser> userManager, ApplicationDb
         return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
     }
 
+    public async Task<Result> Unlock(string id)
+    {
+        if (await _usermanager.FindByIdAsync(id) is not { } user)
+            return Result.Failure(UserErrors.UserNotFound);
+
+        var result = await _usermanager.SetLockoutEndDateAsync(user, null);
+
+        if (result.Succeeded)
+            return Result.Success();
+
+        var error = result.Errors.First();
+
+        return Result.Failure(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
+    }
 
     public async Task<Result<UserProfileResponse>> GetProfileAsync(string userId)
     {
