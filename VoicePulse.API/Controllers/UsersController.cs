@@ -2,6 +2,7 @@
 using VoicePulse.API.Extensions;
 using VoicePulse.API.Filters;
 using VoicePulse.Application.Common.Consts;
+using VoicePulse.Application.Contracts.Users;
 using VoicePulse.Application.Interfaces;
 
 namespace VoicePulse.API.Controllers;
@@ -25,5 +26,14 @@ public class UsersController(IUserService userService) : ControllerBase
         var result = await _userService.GetAsync(id);
 
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+    }
+
+    [HttpPost("")]
+    [HasPermission(Permissions.AddUsers)]
+    public async Task<IActionResult> Add([FromBody] CreateUserRequest request, CancellationToken cancellationToken)
+    {
+        var result = await _userService.AddAsync(request, cancellationToken);
+
+        return result.IsSuccess ? CreatedAtAction(nameof(Get), new { result.Value.Id }, result.Value) : result.ToProblem();
     }
 }

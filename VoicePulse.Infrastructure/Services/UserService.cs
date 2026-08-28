@@ -12,10 +12,11 @@ using VoicePulse.Infrastructure.Persistence;
 
 namespace VoicePulse.Infrastructure.Services;
 
-public class UserService(UserManager<ApplicationUser> userManager, ApplicationDbContext context) : IUserService
+public class UserService(UserManager<ApplicationUser> userManager, ApplicationDbContext context, IRoleService roleService) : IUserService
 {
     private readonly UserManager<ApplicationUser> _usermanager = userManager;
     private readonly ApplicationDbContext _context = context;
+    private readonly IRoleService _roleservice = roleService;
 
     public async Task<IEnumerable<UserResponse>> GetAllAsync(CancellationToken cancellationToken = default) =>
         await (from u in _context.Users
@@ -60,6 +61,35 @@ public class UserService(UserManager<ApplicationUser> userManager, ApplicationDb
         return Result.Success(response);
     }
 
+    public async Task<Result<UserResponse>> AddAsync(CreateUserRequest request, CancellationToken cancellationToken = default)
+    {
+        var emailIsExists = await _usermanager.Users.AnyAsync(x => x.Email == request.Email, cancellationToken);
+
+        if (emailIsExists)
+            return Result.Failure<UserResponse>(UserErrors.DuplicatedEmail);
+
+        var allowedRoles = await _roleservice.GetAllAsync(cancellationToken: cancellationToken);
+
+        if (request.Roles.Except(allowedRoles.Select(x => x.Name)).Any())
+            return Result.Failure<UserResponse>(UserErrors.InvalidRoles);
+
+        var user = request.Adapt<ApplicationUser>();
+
+        var result = await _usermanager.CreateAsync(user, request.Password);
+
+        if (result.Succeeded)
+        {
+            await _usermanager.AddToRolesAsync(user, request.Roles);
+
+            var response = (user, request.Roles).Adapt<UserResponse>();
+
+            return Result.Success(response);
+        }
+
+        var error = result.Errors.First();
+
+        return Result.Failure<UserResponse>(new Error(error.Code, error.Description, StatusCodes.Status400BadRequest));
+    }
 
     public async Task<Result<UserProfileResponse>> GetProfileAsync(string userId)
     {
