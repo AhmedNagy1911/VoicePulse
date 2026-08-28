@@ -29,10 +29,10 @@ public class QuestionService(IApplicationDbContext context , HybridCache hybridC
         var query = _context.Questions
             .Where(x => x.PollId == pollId);
 
-        //if (!string.IsNullOrEmpty(filters.SearchValue))
-        //{
-        //    query = query.Where(x => x.Content.Contains(filters.SearchValue));
-        //}
+        if (!string.IsNullOrEmpty(filters.SearchValue))
+        {
+            query = query.Where(x => x.Content.Contains(filters.SearchValue));
+        }
 
         //if (!string.IsNullOrEmpty(filters.SortColumn))
         //{
