@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using VoicePulse.API.Extensions;
+using VoicePulse.Application.Common.Consts;
 using VoicePulse.Application.Contracts.Votes;
 using VoicePulse.Application.Interfaces;
 using VoicePulse.Application.Services;
@@ -10,7 +11,7 @@ namespace VoicePulse.API.Controllers;
 
 [Route("api/polls/{pollId}/vote")]
 [ApiController]
-[Authorize]
+[Authorize(Roles = DefaultRoles.Member)]
 public class VotesController(IQuestionService questionService , IVoteService voteService ) : ControllerBase
 {
     private readonly IQuestionService _questionservice = questionService;

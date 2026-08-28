@@ -1,9 +1,11 @@
 using Hangfire;
 using Hangfire.Dashboard;
 using HangfireBasicAuthenticationFilter;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.OpenApi;
 using Serilog;
 using VoicePulse.API.Exceptions;
+using VoicePulse.API.Filters;
 using VoicePulse.Application;
 using VoicePulse.Application.Interfaces;
 using VoicePulse.Infrastructure;
@@ -83,6 +85,11 @@ builder.Services.AddStackExchangeRedisCache(options =>
 
 // Add Hybrid Cache
 builder.Services.AddHybridCache();
+
+// permissions
+builder.Services.AddTransient<IAuthorizationHandler, PermissionAuthorizationHandler>();
+builder.Services.AddTransient<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
+
 
 var app = builder.Build();
 

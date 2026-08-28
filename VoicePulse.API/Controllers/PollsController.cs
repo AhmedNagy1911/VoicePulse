@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VoicePulse.API.Extensions;
+using VoicePulse.API.Filters;
+using VoicePulse.Application.Common.Consts;
 using VoicePulse.Application.Common.Results;
 using VoicePulse.Application.Contracts.Polls;
 using VoicePulse.Application.Interfaces;
@@ -17,12 +19,14 @@ public class PollsController(IPollService pollService) : ControllerBase
     private readonly IPollService _pollservice = pollService;
 
     [HttpGet("")]
+    [HasPermission(Permissions.GetPolls)]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken = default)
     {
         return Ok(await _pollservice.GetAllAsync(cancellationToken));
     }
 
     [HttpGet("current")]
+    [Authorize(Roles = DefaultRoles.Member)]
     public async Task<IActionResult> GetCurrent(CancellationToken cancellationToken = default)
     {
         return Ok(await _pollservice.GetCurrentAsync(cancellationToken));
