@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Security.Cryptography;
 using System.Text;
+using VoicePulse.Application.Common.Consts;
 using VoicePulse.Application.Common.Errors;
 using VoicePulse.Application.Common.Results;
 using VoicePulse.Application.Contracts.Authentication;
@@ -199,7 +200,10 @@ public class AuthService(
         var result = await _usermanager.ConfirmEmailAsync(user, code);
 
         if (result.Succeeded)
+        {
+            await _usermanager.AddToRoleAsync(user, DefaultRoles.Member);
             return Result.Success();
+        }
 
         var error = result.Errors.First();
 
