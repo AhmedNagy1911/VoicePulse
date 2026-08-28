@@ -4,6 +4,7 @@ using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Logging;
 using VoicePulse.Application.Common.Errors;
 using VoicePulse.Application.Common.Interfaces;
+using VoicePulse.Application.Common.Models;
 using VoicePulse.Application.Common.Results;
 using VoicePulse.Application.Contracts.Questions;
 using VoicePulse.Application.Interfaces;
@@ -18,26 +19,34 @@ public class QuestionService(IApplicationDbContext context , HybridCache hybridC
     private readonly ILogger<QuestionService> _logger = logger;
 
     private const string _cachePrefix = "availableQuestions";
-    public async Task<Result<IEnumerable<QuestionResponse>>> GetAllAsync(int pollId, CancellationToken cancellationToken  = default)
+    public async Task<Result<PaginatedList<QuestionResponse>>> GetAllAsync(int pollId, RequestFilters filters, CancellationToken cancellationToken = default)
     {
         var pollIsExists = await _context.Polls.AnyAsync(x => x.Id == pollId, cancellationToken: cancellationToken);
 
         if (!pollIsExists)
-            return Result.Failure<IEnumerable<QuestionResponse>>(PollErrors.PollNotFound);
+            return Result.Failure<PaginatedList<QuestionResponse>>(PollErrors.PollNotFound);
 
-        var questions = await _context.Questions
-              .Where(x=> x.PollId == pollId)
-              .Include(x => x.Answers)
-              //.Select(q => new QuestionResponse(
-              //    q.Id,
-              //    q.Content,
-              //    q.Answers.Select(a => new AnswerResponse(a.Id, a.Content))
-              //))
-              .ProjectToType<QuestionResponse>()
-              .AsNoTracking()
-              .ToListAsync(cancellationToken: cancellationToken);
+        var query = _context.Questions
+            .Where(x => x.PollId == pollId);
 
-        return Result.Success<IEnumerable<QuestionResponse>>(questions);
+        //if (!string.IsNullOrEmpty(filters.SearchValue))
+        //{
+        //    query = query.Where(x => x.Content.Contains(filters.SearchValue));
+        //}
+
+        //if (!string.IsNullOrEmpty(filters.SortColumn))
+        //{
+        //    query = query.OrderBy($"{filters.SortColumn} {filters.SortDirection}");
+        //}
+
+        var source = query
+                        .Include(x => x.Answers)
+                        .ProjectToType<QuestionResponse>()
+                        .AsNoTracking();
+
+        var questions = await PaginatedList<QuestionResponse>.CreateAsync(source, filters.PageNumber, filters.PageSize, cancellationToken);
+
+        return Result.Success(questions);
     }
 
     public async  Task<Result<IEnumerable<QuestionResponse>>> GetAvaliableAsync(int pollId, string userId, CancellationToken cancellationToken = default)
