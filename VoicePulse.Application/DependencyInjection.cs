@@ -64,6 +64,15 @@ public static class DependencyInjection
                 options.QueueLimit = 1;
                 options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
             });
+
+            rateLimiterOptions.AddSlidingWindowLimiter("sliding", options =>
+            {
+                options.PermitLimit = 2;
+                options.Window = TimeSpan.FromSeconds(20);
+                options.SegmentsPerWindow = 2;
+                options.QueueLimit = 1;
+                options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+            });
         });
 
         return services;
