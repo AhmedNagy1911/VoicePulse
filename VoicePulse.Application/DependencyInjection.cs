@@ -47,6 +47,17 @@ public static class DependencyInjection
                 options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
             });
 
+            rateLimiterOptions.AddTokenBucketLimiter("token", options =>
+            {
+                options.TokenLimit = 2;
+                options.QueueLimit = 1;
+                options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+                options.ReplenishmentPeriod = TimeSpan.FromSeconds(30);
+                options.TokensPerPeriod = 2;
+                options.AutoReplenishment = true;
+            });
+
+
         });
 
         return services;
