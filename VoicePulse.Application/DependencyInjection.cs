@@ -7,7 +7,9 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.DependencyInjection;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using System.Reflection;
+using System.Security.Claims;
 using System.Threading.RateLimiting;
+using VoicePulse.Application.Common.Consts;
 using VoicePulse.Application.Interfaces;
 using VoicePulse.Application.Services;
 
@@ -50,6 +52,17 @@ public static class DependencyInjection
                    }
                )
            );
+
+            rateLimiterOptions.AddPolicy(RateLimiters.UserLimiter, httpContext =>
+                RateLimitPartition.GetFixedWindowLimiter(
+                    partitionKey: httpContext.User.Identity?.Name?.ToString(),
+                    factory: _ => new FixedWindowRateLimiterOptions
+                    {
+                        PermitLimit = 2,
+                        Window = TimeSpan.FromSeconds(20)
+                    }
+                )
+            );
 
             rateLimiterOptions.AddConcurrencyLimiter("Concurrency", options =>
             {
