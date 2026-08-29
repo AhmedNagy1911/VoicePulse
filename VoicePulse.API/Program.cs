@@ -103,11 +103,11 @@ builder.Services.AddHealthChecks()
 // Api 
 builder.Services.AddApiVersioning(options =>
 {
-    options.ApiVersionReader = new UrlSegmentApiVersionReader(); //ApiVersion(1);
-    //options.AssumeDefaultVersionWhenUnspecified = true;
-    //options.ReportApiVersions = true;
+    options.DefaultApiVersion = new ApiVersion(1);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;
 
-    //options.ApiVersionReader = new HeaderApiVersionReader("x-api-version");
+    options.ApiVersionReader = new HeaderApiVersionReader("x-api-version");
 }).AddApiExplorer(options =>
 {
     options.GroupNameFormat = "'v'V";
