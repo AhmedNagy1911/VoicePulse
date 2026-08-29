@@ -57,7 +57,13 @@ public static class DependencyInjection
                 options.AutoReplenishment = true;
             });
 
-
+            rateLimiterOptions.AddFixedWindowLimiter("fixed", options =>
+            {
+                options.PermitLimit = 2;
+                options.Window = TimeSpan.FromSeconds(20);
+                options.QueueLimit = 1;
+                options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+            });
         });
 
         return services;
