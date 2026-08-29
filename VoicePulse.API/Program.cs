@@ -148,6 +148,8 @@ app.UseExceptionHandler();
 
 app.MapControllers();
 
+app.UseRateLimiter();
+
 app.MapHealthChecks("health", new HealthCheckOptions
 {
     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse

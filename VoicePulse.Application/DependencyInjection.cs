@@ -1,9 +1,13 @@
 ﻿using FluentValidation;
 using Mapster;
 using MapsterMapper;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.DependencyInjection;
 using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using System.Reflection;
+using System.Threading.RateLimiting;
 using VoicePulse.Application.Interfaces;
 using VoicePulse.Application.Services;
 
@@ -30,6 +34,20 @@ public static class DependencyInjection
             .AddFluentValidationAutoValidation()
             .AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
+
+        // Add Rate Limiter
+        services.AddRateLimiter(rateLimiterOptions =>
+        {
+            rateLimiterOptions.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+            rateLimiterOptions.AddConcurrencyLimiter("Concurrency", options =>
+            {
+                options.PermitLimit = 1000;
+                options.QueueLimit = 100;
+                options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+            });
+
+        });
 
         return services;
     }
