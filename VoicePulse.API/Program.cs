@@ -8,6 +8,7 @@ using Microsoft.OpenApi;
 using Serilog;
 using VoicePulse.API.Exceptions;
 using VoicePulse.API.Filters;
+using VoicePulse.API.Health;
 using VoicePulse.Application;
 using VoicePulse.Application.Interfaces;
 using VoicePulse.Infrastructure;
@@ -95,7 +96,8 @@ builder.Services.AddTransient<IAuthorizationPolicyProvider, PermissionAuthorizat
 // Add Health Checks 
 builder.Services.AddHealthChecks()
      .AddSqlServer(name: "database", connectionString: builder.Configuration.GetConnectionString("DefaultConnection")!)
-     .AddHangfire(options => { options.MinimumAvailableServers = 1; });
+     .AddHangfire(options => { options.MinimumAvailableServers = 1; })
+     .AddCheck<MailProviderHealthCheck>(name: "mail service");
 
 
 var app = builder.Build();
