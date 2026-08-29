@@ -40,6 +40,17 @@ public static class DependencyInjection
         {
             rateLimiterOptions.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
+            rateLimiterOptions.AddPolicy(RateLimiters.IpLimiter, httpContext =>
+               RateLimitPartition.GetFixedWindowLimiter(
+                   partitionKey: httpContext.Connection.RemoteIpAddress?.ToString(),
+                   factory: _ => new FixedWindowRateLimiterOptions
+                   {
+                       PermitLimit = 2,
+                       Window = TimeSpan.FromSeconds(20)
+                   }
+               )
+           );
+
             rateLimiterOptions.AddConcurrencyLimiter("Concurrency", options =>
             {
                 options.PermitLimit = 1000;
