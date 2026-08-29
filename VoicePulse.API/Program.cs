@@ -90,6 +90,9 @@ builder.Services.AddHybridCache();
 builder.Services.AddTransient<IAuthorizationHandler, PermissionAuthorizationHandler>();
 builder.Services.AddTransient<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
 
+// Add Health Checks 
+builder.Services.AddHealthChecks();
+
 
 var app = builder.Build();
 
@@ -138,5 +141,7 @@ app.UseAuthorization();
 app.UseExceptionHandler();
 
 app.MapControllers();
+
+app.MapHealthChecks("health");
 
 app.Run();
