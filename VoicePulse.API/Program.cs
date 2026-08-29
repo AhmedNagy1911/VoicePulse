@@ -94,7 +94,8 @@ builder.Services.AddTransient<IAuthorizationPolicyProvider, PermissionAuthorizat
 
 // Add Health Checks 
 builder.Services.AddHealthChecks()
-     .AddSqlServer(name: "database", connectionString: builder.Configuration.GetConnectionString("DefaultConnection")!);
+     .AddSqlServer(name: "database", connectionString: builder.Configuration.GetConnectionString("DefaultConnection")!)
+     .AddHangfire(options => { options.MinimumAvailableServers = 1; });
 
 
 var app = builder.Build();
