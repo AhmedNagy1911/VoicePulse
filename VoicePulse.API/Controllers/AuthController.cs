@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Identity.Client.NativeInterop;
 using VoicePulse.API.Extensions;
+using VoicePulse.Application.Common.Consts;
 using VoicePulse.Application.Contracts.Authentication;
 using VoicePulse.Application.Interfaces;
 using VoicePulse.Infrastructure.Services;
@@ -9,6 +11,7 @@ namespace VoicePulse.API.Controllers;
 
 [Route("[controller]")]
 [ApiController]
+[EnableRateLimiting(RateLimiters.IpLimiter)]
 public class AuthController(IAuthService authService , ILogger<AuthController> logger) : ControllerBase
 {
     private readonly IAuthService _authservice = authService;
@@ -47,6 +50,7 @@ public class AuthController(IAuthService authService , ILogger<AuthController> l
     }
 
     [HttpPost("register")]
+    [DisableRateLimiting]
     public async Task<IActionResult> Register([FromBody] RegisterRequest request, CancellationToken cancellationToken)
     {
         var result = await _authservice.RegisterAsync(request, cancellationToken);

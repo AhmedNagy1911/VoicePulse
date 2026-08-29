@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using System.Security.Claims;
 using VoicePulse.API.Extensions;
 using VoicePulse.Application.Common.Consts;
@@ -12,6 +13,7 @@ namespace VoicePulse.API.Controllers;
 [Route("api/polls/{pollId}/vote")]
 [ApiController]
 [Authorize(Roles = DefaultRoles.Member)]
+[EnableRateLimiting(RateLimiters.Concurrency)]
 public class VotesController(IQuestionService questionService , IVoteService voteService ) : ControllerBase
 {
     private readonly IQuestionService _questionservice = questionService;

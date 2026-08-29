@@ -64,37 +64,10 @@ public static class DependencyInjection
                 )
             );
 
-            rateLimiterOptions.AddConcurrencyLimiter("Concurrency", options =>
+            rateLimiterOptions.AddConcurrencyLimiter(RateLimiters.Concurrency, options =>
             {
                 options.PermitLimit = 1000;
                 options.QueueLimit = 100;
-                options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-            });
-
-            rateLimiterOptions.AddTokenBucketLimiter("token", options =>
-            {
-                options.TokenLimit = 2;
-                options.QueueLimit = 1;
-                options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-                options.ReplenishmentPeriod = TimeSpan.FromSeconds(30);
-                options.TokensPerPeriod = 2;
-                options.AutoReplenishment = true;
-            });
-
-            rateLimiterOptions.AddFixedWindowLimiter("fixed", options =>
-            {
-                options.PermitLimit = 2;
-                options.Window = TimeSpan.FromSeconds(20);
-                options.QueueLimit = 1;
-                options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-            });
-
-            rateLimiterOptions.AddSlidingWindowLimiter("sliding", options =>
-            {
-                options.PermitLimit = 2;
-                options.Window = TimeSpan.FromSeconds(20);
-                options.SegmentsPerWindow = 2;
-                options.QueueLimit = 1;
                 options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
             });
         });
