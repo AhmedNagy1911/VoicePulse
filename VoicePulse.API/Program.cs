@@ -1,7 +1,9 @@
 using Hangfire;
 using Hangfire.Dashboard;
 using HangfireBasicAuthenticationFilter;
+using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.OpenApi;
 using Serilog;
 using VoicePulse.API.Exceptions;
@@ -91,7 +93,8 @@ builder.Services.AddTransient<IAuthorizationHandler, PermissionAuthorizationHand
 builder.Services.AddTransient<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
 
 // Add Health Checks 
-builder.Services.AddHealthChecks();
+builder.Services.AddHealthChecks()
+     .AddSqlServer(name: "database", connectionString: builder.Configuration.GetConnectionString("DefaultConnection")!);
 
 
 var app = builder.Build();
@@ -142,6 +145,8 @@ app.UseExceptionHandler();
 
 app.MapControllers();
 
-app.MapHealthChecks("health");
-
+app.MapHealthChecks("health", new HealthCheckOptions
+{
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
 app.Run();
