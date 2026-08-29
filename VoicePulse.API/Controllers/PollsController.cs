@@ -1,4 +1,5 @@
-﻿using Mapster;
+﻿using Asp.Versioning;
+using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -14,7 +15,8 @@ namespace VoicePulse.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-
+[ApiVersion(1, Deprecated = true)]
+[ApiVersion(2)]
 public class PollsController(IPollService pollService) : ControllerBase
 {
     private readonly IPollService _pollservice = pollService;
@@ -26,12 +28,22 @@ public class PollsController(IPollService pollService) : ControllerBase
         return Ok(await _pollservice.GetAllAsync(cancellationToken));
     }
 
+    [MapToApiVersion(1)]
     [HttpGet("current")]
     [Authorize(Roles = DefaultRoles.Member)]
     [EnableRateLimiting(RateLimiters.UserLimiter)]
     public async Task<IActionResult> GetCurrentV1(CancellationToken cancellationToken = default)
     {
         return Ok(await _pollservice.GetCurrentAsyncV1(cancellationToken));
+    }
+
+    [MapToApiVersion(2)]
+    [HttpGet("current")]
+    [Authorize(Roles = DefaultRoles.Member)]
+    [EnableRateLimiting(RateLimiters.UserLimiter)]
+    public async Task<IActionResult> GetCurrentV2(CancellationToken cancellationToken = default)
+    {
+        return Ok(await _pollservice.GetCurrentAsyncV2(cancellationToken));
     }
 
     [HttpGet("{id}")]

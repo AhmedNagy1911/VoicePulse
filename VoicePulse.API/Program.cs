@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using Hangfire;
 using Hangfire.Dashboard;
 using HangfireBasicAuthenticationFilter;
@@ -99,6 +100,19 @@ builder.Services.AddHealthChecks()
      .AddHangfire(options => { options.MinimumAvailableServers = 1; })
      .AddCheck<MailProviderHealthCheck>(name: "mail service");
 
+// Api 
+builder.Services.AddApiVersioning(options =>
+{
+    options.ApiVersionReader = new UrlSegmentApiVersionReader(); //ApiVersion(1);
+    //options.AssumeDefaultVersionWhenUnspecified = true;
+    //options.ReportApiVersions = true;
+
+    //options.ApiVersionReader = new HeaderApiVersionReader("x-api-version");
+}).AddApiExplorer(options =>
+{
+    options.GroupNameFormat = "'v'V";
+    options.SubstituteApiVersionInUrl = true;
+});
 
 var app = builder.Build();
 
