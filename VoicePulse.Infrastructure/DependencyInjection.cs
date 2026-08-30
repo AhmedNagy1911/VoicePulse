@@ -38,14 +38,17 @@ public static class DependencyInjection
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IRoleService, RoleService>();
 
-        //Add Options Pattern 
-        ////services.Configure<JwtOptions>(config.GetSection(JwtOptions.SectionName));
+        //Add Options Pattern
         services.AddOptions<JwtOptions>()
             .BindConfiguration(JwtOptions.SectionName)
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
-        services.Configure<MailSettings>(config.GetSection(nameof(MailSettings)));
+        services.AddOptions<MailSettings>()
+            .BindConfiguration(nameof(MailSettings))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
         services.AddHttpContextAccessor();
 
         var jwtSettings = config.GetSection(JwtOptions.SectionName).Get<JwtOptions>();
