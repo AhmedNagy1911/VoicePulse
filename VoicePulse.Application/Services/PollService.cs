@@ -77,10 +77,7 @@ public class PollService(IApplicationDbContext context , INotificationService no
         if (currentPoll is null)
             return Result.Failure(PollErrors.PollNotFound);
 
-        currentPoll.Title = request.Title;
-        currentPoll.Summary = request.Summary;
-        currentPoll.StartsAt = request.StartsAt;
-        currentPoll.EndsAt = request.EndsAt;
+        currentPoll = request.Adapt(currentPoll);
 
         await _context.SaveChangesAsync(cancellationToken);
 
