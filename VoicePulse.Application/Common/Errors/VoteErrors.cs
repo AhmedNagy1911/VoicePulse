@@ -2,7 +2,7 @@
 
 namespace VoicePulse.Application.Common.Errors;
 
-public static class VoteErrors
+public record VoteErrors
 {
     public static readonly Error InvalidQuestions =
         new("Vote.InvalidQuestions", "Invalid questions", 400);

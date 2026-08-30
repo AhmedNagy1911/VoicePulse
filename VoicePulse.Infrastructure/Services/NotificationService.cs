@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
+using VoicePulse.Application.Common.Consts;
 using VoicePulse.Application.Interfaces;
 using VoicePulse.Domain.Entities;
 using VoicePulse.Infrastructure.Helpers;
@@ -38,8 +39,7 @@ public class NotificationService(
                 .ToListAsync();
         }
 
-        //TODO: Select members only
-        var users = await _userManager.Users.ToListAsync();
+        var users = await _userManager.GetUsersInRoleAsync(DefaultRoles.Member);
 
         var origin = _httpContextAccessor.HttpContext?.Request.Headers.Origin;
 

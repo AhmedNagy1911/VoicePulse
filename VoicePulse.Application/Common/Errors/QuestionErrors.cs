@@ -1,6 +1,6 @@
 ﻿namespace VoicePulse.Application.Common.Errors;
 
-public static class QuestionErrors
+public record QuestionErrors
 {
     public static readonly Error QuestionNotFound =
         new("Question.NotFound", "No question was found with the given ID", 404);

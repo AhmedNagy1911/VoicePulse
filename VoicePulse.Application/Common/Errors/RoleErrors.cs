@@ -2,7 +2,7 @@
 
 namespace VoicePulse.Application.Common.Errors;
 
-public static class RoleErrors
+public record RoleErrors
 {
     public static readonly Error RoleNotFound =
         new("Role.RoleNotFound", "Role is not found", StatusCodes.Status404NotFound);
