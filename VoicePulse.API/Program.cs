@@ -5,11 +5,15 @@ using HangfireBasicAuthenticationFilter;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
 using Serilog;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Reflection;
 using VoicePulse.API.Exceptions;
 using VoicePulse.API.Filters;
 using VoicePulse.API.Health;
+using VoicePulse.API.Swagger;
 using VoicePulse.Application;
 using VoicePulse.Application.Interfaces;
 using VoicePulse.Infrastructure;
@@ -25,39 +29,20 @@ builder.Services
         .AddApplication();
 
 // Add Swagger
+//builder.Services.AddEndpointsApiExplorer();
+//builder.Services.AddSwaggerGen(c =>
+//{
+
+//});
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
+builder.Services.AddSwaggerGen(options =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "VoicePulse API",
-        Version = "v1",
-        Description = "VoicePulse API Documentation",
-        Contact = new OpenApiContact
-        {
-            Name = "VoicePulse"
-        }
-    });
+    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 
-    // JWT Authentication
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Description = "Enter JWT token.\n\nExample: Bearer eyJhbGciOiJIUzI1NiIs...",
-        Name = "Authorization",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.Http,
-        Scheme = "bearer",
-        BearerFormat = "JWT"
-    });
-
-    c.AddSecurityRequirement(_ => new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecuritySchemeReference("Bearer"),
-            new List<string>()
-        }
-    });
+    options.OperationFilter<SwaggerDefaultValues>();
 });
+builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 
 // Exception Handler
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
@@ -100,7 +85,7 @@ builder.Services.AddHealthChecks()
      .AddHangfire(options => { options.MinimumAvailableServers = 1; })
      .AddCheck<MailProviderHealthCheck>(name: "mail service");
 
-// Api 
+// Add Api Versioning 
 builder.Services.AddApiVersioning(options =>
 {
     options.DefaultApiVersion = new ApiVersion(1);
@@ -108,7 +93,8 @@ builder.Services.AddApiVersioning(options =>
     options.ReportApiVersions = true;
 
     options.ApiVersionReader = new HeaderApiVersionReader("x-api-version");
-}).AddApiExplorer(options =>
+})
+.AddApiExplorer(options =>
 {
     options.GroupNameFormat = "'v'V";
     options.SubstituteApiVersionInUrl = true;
@@ -119,11 +105,15 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI(c =>
+    app.UseSwaggerUI(options =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "VoicePulse API V1");
-        c.RoutePrefix = "swagger";
-    });
+        var descriptions = app.DescribeApiVersions();
+        foreach (var description in descriptions)
+        {
+            options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
+        }
+    }
+    );
 }
 
 app.UseSerilogRequestLogging();
