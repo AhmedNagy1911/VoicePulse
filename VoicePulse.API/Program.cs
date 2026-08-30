@@ -29,11 +29,6 @@ builder.Services
         .AddApplication();
 
 // Add Swagger
-//builder.Services.AddEndpointsApiExplorer();
-//builder.Services.AddSwaggerGen(c =>
-//{
-
-//});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
